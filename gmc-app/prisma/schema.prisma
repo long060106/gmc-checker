@@ -1,0 +1,106 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Note that some adapters may set a maximum length for the String type by default, please ensure your strings are long
+// enough when changing adapters.
+// See https://www.prisma.io/docs/orm/reference/prisma-schema-reference#string for more information
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL") // dev: file:dev.sqlite (in .env) · prod: file:/data/prod.sqlite (Fly volume)
+}
+
+model Session {
+  id            String    @id
+  shop          String
+  state         String
+  isOnline      Boolean   @default(false)
+  scope         String?
+  expires       DateTime?
+  accessToken   String
+  userId        BigInt?
+  firstName     String?
+  lastName      String?
+  email         String?
+  accountOwner  Boolean   @default(false)
+  locale        String?
+  collaborator  Boolean?  @default(false)
+  emailVerified Boolean?  @default(false)
+  refreshToken        String?
+  refreshTokenExpires DateTime?
+}
+
+// ---------- Web checker + outcome log (see research/2026-11-09-steps-4-7.md, Step 5) ----------
+// Privacy: no store URL is stored. shopKey = HMAC-SHA256(hostname, SHOPKEY_SECRET).
+
+model Scan {
+  id              String   @id @default(cuid())
+  shopKey         String
+  engineVersion   String
+  createdAt       DateTime @default(now())
+  results         String // JSON: { [checkId]: "pass" | "warn" | "fail" | "na" }
+  source          String // "web" | "app"
+  gmcNameProvided Boolean  @default(false)
+
+  @@index([shopKey, createdAt])
+}
+
+model ReviewAttempt {
+  id             String       @id @default(cuid())
+  shopKey        String
+  attemptNo      Int
+  label          String // misrepresentation | website_needs_improvement | insufficient_contact_info | missing_return_policy | site_inaccessible | login_required | cannot_complete_purchase | other
+  baselineScanId String
+  snapshotScanId String?
+  requestedAt    DateTime
+  outcome        String       @default("pending") // reinstated | rejected | pending | unknown
+  outcomeAt      DateTime?
+  consentAt      DateTime?
+  source         String // in_app | web | public_post
+  sourceUrl      String?
+  fixes          AttemptFix[]
+
+  @@index([shopKey])
+  @@index([label, outcome])
+}
+
+model AttemptFix {
+  attemptId String
+  checkId   String
+  attempt   ReviewAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+
+  @@id([attemptId, checkId])
+}
+
+model WaitlistEntry {
+  id                    String    @id @default(cuid())
+  email                 String    @unique
+  createdAt             DateTime  @default(now())
+  scanId                String?
+  suspended             Boolean?
+  label                 String?
+  priceShown            Int       @default(3900) // cents
+  outcomeEmailOptIn     Boolean   @default(false)
+  outcomeEmailSendAfter DateTime?
+  outcomeToken          String?   @unique
+  outcomeEmailSentAt    DateTime?
+  outcomeAnswer         String? // reinstated | rejected | pending (from the one-click email)
+  outcomeAnsweredAt     DateTime?
+  unsubscribed          Boolean   @default(false)
+}
+
+// App-only: the merchant's own Merchant Center details, typed in by them, used by ID-01/02 and CON-03.
+// Keyed by myshopify domain because the app must show the merchant their own settings.
+// Never copied into the shared outcome tables. Deleted on shop/redact.
+model ShopProfile {
+  shop                    String    @id
+  gmcBusinessName         String?
+  gmcPhone                String?
+  gmcEmail                String?
+  gmcAddress              String?
+  outcomeSharingConsentAt DateTime?
+  updatedAt               DateTime  @updatedAt
+}

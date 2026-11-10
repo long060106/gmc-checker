@@ -1,0 +1,7 @@
+# OS junk
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Parked idea (ad-spend firewall) — private notes, kept out of this product repo
+ad-spend-firewall-*.md

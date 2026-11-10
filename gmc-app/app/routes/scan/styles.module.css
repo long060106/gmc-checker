@@ -1,0 +1,298 @@
+.page {
+  --bg: #ffffff;
+  --fg: #1a1a1a;
+  --muted: #5c5f62;
+  --line: #e1e3e5;
+  --card: #f6f6f7;
+  --accent: #1f5199;
+  --pass: #1a7f37;
+  --warn: #9a6700;
+  --fail: #c9372c;
+  --na: #8c9196;
+  background: var(--bg);
+  color: var(--fg);
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+  font-family: Inter, -apple-system, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.5;
+}
+
+@media (prefers-color-scheme: dark) {
+  .page {
+    --bg: #111213;
+    --fg: #e3e3e3;
+    --muted: #a6acb2;
+    --line: #2e3133;
+    --card: #1b1c1d;
+    --accent: #7ab0ff;
+    --pass: #4cc26b;
+    --warn: #e0b341;
+    --fail: #ff7b6e;
+    --na: #6d7175;
+  }
+}
+
+:global(body) {
+  margin: 0;
+  background: #ffffff;
+}
+
+@media (prefers-color-scheme: dark) {
+  :global(body) {
+    background: #111213;
+  }
+}
+
+.header {
+  margin-bottom: 20px;
+}
+
+.h1 {
+  font-size: 1.6rem;
+  line-height: 1.25;
+  margin: 0 0 8px;
+}
+
+.lede,
+.muted {
+  color: var(--muted);
+}
+
+.small {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.scanForm,
+.waitlist {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--card);
+}
+
+.field {
+  display: grid;
+  gap: 4px;
+  font-weight: 500;
+}
+
+.field input,
+.field select {
+  font: inherit;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--fg);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+}
+
+.fieldset legend {
+  font-weight: 500;
+  margin-bottom: 4px;
+  width: 100%;
+}
+
+.checkbox {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.button {
+  font: inherit;
+  font-weight: 600;
+  padding: 12px 16px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+}
+
+.button:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.error {
+  color: var(--fail);
+  font-weight: 500;
+}
+
+.report {
+  margin-top: 28px;
+}
+
+.reportTitle {
+  font-size: 1.25rem;
+  margin: 0 0 4px;
+  overflow-wrap: anywhere;
+}
+
+.summary {
+  margin: 0 0 16px;
+}
+
+.failText {
+  color: var(--fail);
+}
+
+.warnText {
+  color: var(--warn);
+}
+
+.group {
+  margin-bottom: 16px;
+}
+
+.groupTitle {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  margin: 0 0 6px;
+}
+
+.list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.finding {
+  border: 1px solid var(--line);
+  border-left-width: 4px;
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
+.pass {
+  border-left-color: var(--pass);
+}
+.warn {
+  border-left-color: var(--warn);
+}
+.fail {
+  border-left-color: var(--fail);
+}
+.na {
+  border-left-color: var(--na);
+  opacity: 0.8;
+}
+
+.findingHead {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.findingTitle {
+  font-weight: 600;
+  flex: 1 1 200px;
+}
+
+.checkId {
+  font-size: 0.75rem;
+  color: var(--muted);
+  font-family: ui-monospace, Consolas, monospace;
+}
+
+.badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  color: #fff;
+}
+.badge_pass {
+  background: var(--pass);
+}
+.badge_warn {
+  background: var(--warn);
+}
+.badge_fail {
+  background: var(--fail);
+}
+.badge_na {
+  background: var(--na);
+}
+
+.evidence {
+  margin: 6px 0 0;
+  overflow-wrap: anywhere;
+}
+
+.fix {
+  margin: 6px 0 0;
+  font-size: 0.9rem;
+}
+
+.ref {
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 0.85rem;
+  color: var(--accent);
+}
+
+.naBlock {
+  margin: 8px 0 24px;
+}
+
+.naBlock summary {
+  cursor: pointer;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.waitlist {
+  margin-top: 24px;
+}
+
+.waitlistTitle {
+  font-size: 1.15rem;
+  margin: 0;
+}
+
+.priceBox {
+  border: 1px dashed var(--accent);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
+.thanks {
+  margin-top: 24px;
+  padding: 16px;
+  border-radius: 10px;
+  border: 1px solid var(--pass);
+}
+
+.footer {
+  margin-top: 40px;
+  font-size: 0.85rem;
+  color: var(--muted);
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+}
+
+.footer a,
+.small a {
+  color: var(--accent);
+}
