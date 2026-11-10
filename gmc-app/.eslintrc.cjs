@@ -50,6 +50,8 @@ module.exports = {
       },
       rules: {
         "react/no-unknown-property": ["error", { ignore: ["variant"] }],
+        // Plain apostrophes in English copy ("don't") render fine; escaping them hurts readability.
+        "react/no-unescaped-entities": "off",
       },
     },
 

@@ -1,0 +1,36 @@
+# Fly.io config. Long: run `fly launch --no-deploy --copy-config` once to create the app,
+# then replace `app` below with the name Fly gives you. Full steps: ../SETUP.md
+app = "CHANGE-ME"
+primary_region = "iad"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  NODE_ENV = "production"
+  PORT = "3000"
+  # SQLite lives on the persistent volume below. Works only with ONE machine (see SETUP.md).
+  DATABASE_URL = "file:/data/prod.sqlite"
+
+[[mounts]]
+  source = "gmcdata"
+  destination = "/data"
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+  auto_stop_machines = "off"   # keep it up: Shopify webhooks and app review must always reach it
+  auto_start_machines = true
+  min_machines_running = 1
+
+  [[http_service.checks]]
+    grace_period = "20s"
+    interval = "30s"
+    method = "GET"
+    path = "/privacy"
+    timeout = "5s"
+
+[[vm]]
+  memory = "512mb"
+  cpu_kind = "shared"
+  cpus = 1

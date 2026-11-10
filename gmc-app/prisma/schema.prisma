@@ -97,10 +97,23 @@ model WaitlistEntry {
 // Never copied into the shared outcome tables. Deleted on shop/redact.
 model ShopProfile {
   shop                    String    @id
+  shopKey                 String? // HMAC of the storefront hostname, so shop/redact can also erase Scan/ReviewAttempt rows
   gmcBusinessName         String?
   gmcPhone                String?
   gmcEmail                String?
   gmcAddress              String?
   outcomeSharingConsentAt DateTime?
   updatedAt               DateTime  @updatedAt
+}
+
+// App-only: full findings (with evidence text) of the merchant's latest in-app scans, so the app home
+// can show them without rescanning. Evidence can contain store emails/URLs, so it never goes into the
+// shared Scan table. Deleted on shop/redact.
+model AppScanDetail {
+  scanId    String   @id
+  shop      String
+  findings  String // JSON: Finding[]
+  createdAt DateTime @default(now())
+
+  @@index([shop, createdAt])
 }

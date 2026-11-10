@@ -11,7 +11,8 @@ const shopify = shopifyApp({
   apiKey: process.env.SHOPIFY_API_KEY,
   apiSecretKey: process.env.SHOPIFY_API_SECRET || "",
   apiVersion: ApiVersion.October26,
-  scopes: process.env.SCOPES?.split(","),
+  // Empty SCOPES ("") must become [], not [""]: this app requests no Admin API scopes.
+  scopes: process.env.SCOPES?.split(",").map((s) => s.trim()).filter(Boolean),
   appUrl: process.env.SHOPIFY_APP_URL || "",
   authPathPrefix: "/auth",
   sessionStorage: new PrismaSessionStorage(prisma),

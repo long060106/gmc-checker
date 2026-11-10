@@ -19,7 +19,8 @@ export default function App() {
     <AppProvider apiKey={apiKey}>
       <s-app-nav>
         <s-link href="/app">Home</s-link>
-        <s-link href="/app/additional">Additional page</s-link>
+        <s-link href="/app/gmc-info">Merchant Center info</s-link>
+        <s-link href="/app/snapshot">Before you request a review</s-link>
       </s-app-nav>
       <Outlet />
     </AppProvider>

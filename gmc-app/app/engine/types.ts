@@ -27,6 +27,10 @@ export interface StoreSnapshot {
 // Facts the merchant types in (from their Merchant Center account). All optional.
 export interface CheckInput {
   gmcBusinessName?: string;
+  // App-only (typed on the "Merchant Center info" page), used by CON-03:
+  gmcPhone?: string;
+  gmcEmail?: string;
+  gmcAddress?: string;
 }
 
 export interface Finding {

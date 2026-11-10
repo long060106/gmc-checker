@@ -7,6 +7,7 @@ import { checkPolicyPlaceholders, checkPrivacyAndTerms, checkRefundPage, checkSh
 import { checkBrokenLinks, checkPlaceholders, checkPublicAccess, checkSocialLinks } from "./checks/site";
 import { checkAvailabilityMatch, checkPriceInHtml, checkStructuredPrice } from "./checks/pricing";
 import { checkFakeEndorsement, checkUnreliableClaims } from "./checks/claims";
+import { checkGmcContactMatch } from "./checks/gmcmatch";
 
 // Bump when any check's logic changes. Scan diffs are only valid between scans with the same version.
 export const ENGINE_VERSION = "0.1.0";
@@ -22,6 +23,7 @@ export const CHECK_INFO: Record<string, CheckInfo> = {
   "ID-02": { title: "Business name follows Google's format rules", group: "Identity", needs: "gmcName" },
   "CON-01": { title: "Contact page exists and is linked", group: "Contact" },
   "CON-02": { title: "Email, phone and address are visible", group: "Contact" },
+  "CON-03": { title: "Contact details match Merchant Center", group: "Contact", needs: "app" },
   "CON-04": { title: "Support email uses your store's domain", group: "Contact" },
   "ABT-01": { title: "About page exists", group: "Contact" },
   "RET-01": { title: "Refund policy page loads and is linked", group: "Policies" },
@@ -47,6 +49,7 @@ export const CHECKS: Array<[string, CheckFn]> = [
   ["ID-02", checkBusinessNameFormat],
   ["CON-01", checkContactPage],
   // ["CON-02", checkContactVisible], // TODO(Long): bỏ comment sau khi viết xong CON-02 trong checks/contact.ts
+  ["CON-03", checkGmcContactMatch],
   ["CON-04", checkSupportEmailDomain],
   ["ABT-01", checkAboutPage],
   ["RET-01", checkRefundPage],
