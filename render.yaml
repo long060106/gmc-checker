@@ -1,0 +1,39 @@
+# Render Blueprint: free web service for the public /scan checker.
+# Render's free tier has no persistent disk, so the database lives at Turso (free, SQLite-compatible).
+# On every start, render-start applies any new migrations to Turso, then starts the server.
+# Values marked `sync: false` are secrets: Render asks for them when you create the Blueprint.
+# Full steps: SETUP.md, section 4.
+services:
+  - type: web
+    name: gmc-checker
+    runtime: node
+    plan: free
+    rootDir: gmc-app
+    buildCommand: npm ci && npx prisma generate && npm run build
+    startCommand: npm run render-start
+    healthCheckPath: /privacy
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: NODE_ENV
+        value: production
+      # Unused when TURSO_DATABASE_URL is set, but Prisma's schema still requires the variable to exist.
+      - key: DATABASE_URL
+        value: file:./unused.sqlite
+      - key: SCOPES
+        value: ""
+      - key: TURSO_DATABASE_URL
+        sync: false
+      - key: TURSO_AUTH_TOKEN
+        sync: false
+      - key: SHOPKEY_SECRET
+        sync: false
+      - key: SHOPIFY_API_KEY
+        sync: false
+      - key: SHOPIFY_API_SECRET
+        sync: false
+      - key: SHOPIFY_APP_URL
+        sync: false
+      - key: CONTACT_EMAIL
+        sync: false

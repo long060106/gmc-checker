@@ -7,7 +7,7 @@
 // Env: APP_PUBLIC_URL, MAIL_FROM, RESEND_API_KEY, MAIL_POSTAL_ADDRESS.
 // MAIL_POSTAL_ADDRESS is required for real sends: US CAN-SPAM requires a valid physical postal
 // address in commercial email. A PO box or registered mailbox is acceptable.
-import { PrismaClient } from "@prisma/client";
+import { createPrismaClient } from "../app/db.server";
 import { sendMail } from "../app/lib/mail.server";
 
 try {
@@ -17,7 +17,8 @@ try {
 }
 
 const SEND = process.argv.includes("--send");
-const prisma = new PrismaClient();
+// Created after .env is loaded, so TURSO_DATABASE_URL from .env is seen.
+const prisma = createPrismaClient();
 
 function requireEnv(names: string[]): Record<string, string> {
   const missing = names.filter((n) => !process.env[n]?.trim());

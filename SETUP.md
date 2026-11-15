@@ -33,33 +33,41 @@ Bạn cần một tên miền (khoảng $10/năm). Không có thì không gửi 
 - Tạo một địa chỉ email trên tên miền đó, ví dụ `support@<domain>`, dùng làm `CONTACT_EMAIL`.
 - **Địa chỉ bưu điện cho `MAIL_POSTAL_ADDRESS`:** luật CAN-SPAM bắt email thương mại phải có địa chỉ bưu điện thật. Nên dùng PO Box hoặc hộp thư ảo, đừng dùng địa chỉ nhà.
 
-## 4. Deploy lên Fly.io [build now]
-```bash
-fly auth signup
-cd gmc-app
-fly launch --no-deploy --copy-config
-fly volumes create gmcdata --size 1 --region iad
-fly secrets set SHOPIFY_API_KEY=... SHOPIFY_API_SECRET=... SCOPES= SHOPIFY_APP_URL=https://<app>.fly.dev SHOPKEY_SECRET=<chuỗi ngẫu nhiên 64 ký tự> CONTACT_EMAIL=support@<domain>
-fly deploy
-fly scale count 1
-```
-- **Phải đặt `fly scale count 1`.** SQLite chỉ chạy đúng trên đúng một máy. Fly mặc định tạo 2 máy, mỗi máy một volume riêng, nên dữ liệu sẽ bị chia đôi.
-- **`SHOPKEY_SECRET` tạo một lần và giữ mãi.** Đổi khóa này thì mọi shopKey cũ không còn khớp. Lệnh tạo: `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`.
-- Sau khi deploy, sửa `application_url` và `redirect_urls` trong `shopify.app.toml` thành URL của Fly, rồi chạy `npm run deploy` để đẩy cấu hình lên Shopify.
-- Kiểm tra: mở `https://<app>.fly.dev/scan` và scan thử một store.
+## 4. Deploy miễn phí: Render (server) + Turso (database) [build now]
+Render free không có ổ đĩa giữ lại được (mỗi lần khởi động lại là mất file), nên database nằm ở Turso: SQLite trên cloud, free 5 GB. Cả hai không cần thẻ. (Phương án Fly cũ vẫn để trong `gmc-app/fly.toml` và `Dockerfile` nếu sau này muốn trả tiền.)
+
+**4.1 Turso (database)**
+1. Đăng ký tại turso.tech bằng GitHub.
+2. Trong dashboard: tạo database tên `gmc-checker`, chọn vùng US West (gần server Render ở Oregon).
+3. Copy **Database URL** (dạng `libsql://gmc-checker-<tên>.turso.io`) và tạo một **token** (Create Token). Lưu cả hai vào trình quản lý mật khẩu.
+4. Bảng sẽ tự được tạo lúc Render khởi động (`npm run render-start` chạy `db:turso-migrate` trước).
+
+**4.2 Render (server)**
+1. Đăng ký tại render.com bằng GitHub, cho phép Render đọc repo `gmc-checker`.
+2. New → **Blueprint** → chọn repo. Render đọc file `render.yaml` ở gốc repo và hỏi các giá trị bí mật:
+   - `TURSO_DATABASE_URL`, `TURSO_AUTH_TOKEN`: từ 4.1.
+   - `SHOPKEY_SECRET`: tạo mới bằng `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`. **Tạo một lần, giữ mãi**: đổi khóa là mọi shopKey cũ không còn khớp.
+   - `SHOPIFY_API_KEY`, `SHOPIFY_API_SECRET`: lấy bằng `npm run env -- show` trong `gmc-app`.
+   - `SHOPIFY_APP_URL`: `https://gmc-checker.onrender.com` (hoặc URL Render cho bạn).
+   - `CONTACT_EMAIL`: để trống cho tới khi có domain.
+3. Bấm Apply, đợi build xong (3–5 phút). Mỗi lần `git push` lên `main` là Render tự deploy lại.
+4. Kiểm tra: mở `https://<app>.onrender.com/scan` và scan thử `allbirds.com`.
+
+**4.3 Giữ server không ngủ**
+Render free tắt server sau 15 phút không có ai truy cập; lần mở sau phải đợi khoảng 1 phút. Người từ forum bấm link mà phải đợi 1 phút sẽ bỏ đi, làm sai kết quả test 7 ngày. Cách xử lý: đăng ký cron-job.org (free), tạo job gọi `https://<app>.onrender.com/privacy` mỗi 10 phút. Render free cho 750 giờ/tháng, đủ cho 1 server chạy suốt tháng.
+
+**Lưu ý:** cấu hình Shopify (`shopify.app.toml`) vẫn trỏ về máy bạn khi chạy `npm run dev`. Bản Render lúc này chỉ phục vụ trang `/scan` công khai. Trước khi nộp App Store sẽ tách cấu hình dev và production.
 
 ## 5. Email hỏi kết quả sau 14 ngày [build now]
-1. Đăng ký Resend, xác minh tên miền, rồi đặt secrets:
-   ```bash
-   fly secrets set RESEND_API_KEY=... MAIL_FROM="Tên <support@domain>" MAIL_POSTAL_ADDRESS="..." APP_PUBLIC_URL=https://<app>.fly.dev
-   ```
+1. Đăng ký Resend và xác minh tên miền. Script gửi email chạy **trên máy bạn** nhưng đọc database Turso, nên ghi vào `gmc-app/.env` (không commit file này): `TURSO_DATABASE_URL`, `TURSO_AUTH_TOKEN`, `RESEND_API_KEY`, `MAIL_FROM="Tên <support@domain>"`, `MAIL_POSTAL_ADDRESS="..."`, `APP_PUBLIC_URL=https://<app>.onrender.com`.
+   ⚠️ Khi `.env` có `TURSO_DATABASE_URL`, `npm run dev` cũng sẽ dùng database production. Ghi xong, gửi email xong thì xóa hai dòng TURSO khỏi `.env`.
 2. Mỗi ngày chạy một lần. Chạy thử trước (dry-run, chỉ in ra, không gửi):
    ```bash
-   fly ssh console -C "npm run outcome:send"
+   npm run outcome:send
    ```
    Thấy đúng rồi mới gửi thật:
    ```bash
-   fly ssh console -C "npm run outcome:send -- --send"
+   npm run outcome:send -- --send
    ```
 
 ## 6. Bài tập code [build now]
