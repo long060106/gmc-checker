@@ -3,7 +3,7 @@ import type { MetaFunction } from "react-router";
 import type { CSSProperties } from "react";
 import { Link, useLoaderData } from "react-router";
 
-export const meta: MetaFunction = () => [{ title: "Privacy policy — storefront check" }];
+export const meta: MetaFunction = () => [{ title: "Privacy policy — Fixlog" }];
 
 export const loader = () => ({ contactEmail: process.env.CONTACT_EMAIL?.trim() || null });
 
@@ -20,10 +20,10 @@ export default function Privacy() {
   return (
     <main style={wrap}>
       <h1>Privacy policy</h1>
-      <p>Last updated: November 9, 2026.</p>
+      <p>Last updated: November 16, 2026.</p>
       <p>
-        This policy covers the free storefront check at <Link to="/scan">/scan</Link> and its waitlist. We collect as
-        little as we can.
+        This policy covers Fixlog&apos;s free storefront check at <Link to="/scan">/scan</Link> and its waitlist. We
+        collect as little as we can.
       </p>
 
       <h2>What we collect</h2>

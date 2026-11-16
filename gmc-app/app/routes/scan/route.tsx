@@ -16,7 +16,7 @@ import { LABELS } from "../../lib/labels";
 import styles from "./styles.module.css";
 
 export const meta: MetaFunction = () => [
-  { title: "Storefront check for Google Merchant Center" },
+  { title: "Fixlog – storefront check for Google Merchant Center" },
   {
     name: "description",
     content:
