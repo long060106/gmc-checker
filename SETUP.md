@@ -29,8 +29,14 @@ git push -u origin main
    ```
 
 ## 3. Tên miền + email [build now]
-Bạn cần một tên miền (khoảng $10/năm). Không có thì không gửi được email kết quả qua Resend, và chính app của mình cũng sẽ trượt check CON-04.
-- Tạo một địa chỉ email trên tên miền đó, ví dụ `support@<domain>`, dùng làm `CONTACT_EMAIL`.
+Nộp App Store **không bắt buộc** có tên miền: app chạy được trên `gmc-checker-wgme.onrender.com`, và email hỗ trợ có thể là Gmail. Nhưng không có tên miền thì không gửi được email hỏi kết quả qua Resend, và check CON-04 của chính app sẽ cảnh báo vì dùng Gmail.
+
+**Cách miễn phí (cập nhật 2026-11-16):**
+1. **Ngay hôm nay:** tạo một Gmail riêng cho app (đừng dùng Gmail cá nhân, vì nó sẽ hiện công khai). Điền vào `CONTACT_EMAIL` trên Render.
+2. **Tên miền miễn phí năm đầu:** dùng GitHub Student Developer Pack (education.github.com/pack, đăng ký bằng email `.edu` của UCF). Pack có các ưu đãi tên miền: Namecheap (`.me`, 1 năm), Name.com (một số đuôi, 1 năm), .TECH (1 năm). Từ năm thứ 2 phải trả giá thường, nên **xem giá gia hạn trước khi chọn**.
+3. **Email trên tên miền, miễn phí:** nhận thư bằng tính năng chuyển tiếp email miễn phí của nhà đăng ký (hoặc Cloudflare Email Routing), chuyển về Gmail của app. Gửi thư bằng Resend (gói free), xác minh tên miền trong Resend, rồi trong Gmail thêm "Send mail as" `support@<domain>` qua SMTP `smtp.resend.com`.
+4. Tránh các tên miền "miễn phí mãi mãi" kiểu `us.kg`, `eu.org`: hay bị dùng để spam và lừa đảo, nên email khó vào inbox và trông kém tin cậy. Với một app nói về độ tin cậy, đó là điểm trừ lớn.
+- Có tên miền rồi thì đổi `CONTACT_EMAIL` sang `support@<domain>`.
 - **Địa chỉ bưu điện cho `MAIL_POSTAL_ADDRESS`:** luật CAN-SPAM bắt email thương mại phải có địa chỉ bưu điện thật. Nên dùng PO Box hoặc hộp thư ảo, đừng dùng địa chỉ nhà.
 
 ## 4. Deploy miễn phí: Render (server) + Turso (database) [build now]
@@ -40,6 +46,7 @@ Render free không có ổ đĩa giữ lại được (mỗi lần khởi độn
 1. Đăng ký tại turso.tech bằng GitHub.
 2. Trong dashboard: tạo database tên `gmc-checker`, chọn vùng US West (gần server Render ở Oregon).
 3. Copy **Database URL** (dạng `libsql://gmc-checker-<tên>.turso.io`) và tạo một **token** (Create Token). Lưu cả hai vào trình quản lý mật khẩu.
+   Lấy lại sau này: app.turso.tech → **Databases** → `gmc-checker` → mục **Connect** có ô **Database URL** (nút copy bên cạnh) và nút **Create Token**. Token chỉ hiện một lần. Hoặc copy từ Render → service → **Environment**. ⚠️ **Không bấm "Invalidate All Tokens"**: làm vậy thì server Render mất kết nối database.
 4. Bảng sẽ tự được tạo lúc Render khởi động (`npm run render-start` chạy `db:turso-migrate` trước).
 
 **4.2 Render (server)**

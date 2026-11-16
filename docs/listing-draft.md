@@ -5,9 +5,11 @@ Rules this draft follows (App Store requirements, read 2026-11-09): name ≤ 30 
 ## Name (pick one, then search the App Store to make sure it's unique)
 | Option | Chars | Note |
 |---|---|---|
-| Recheck: Merchant Center Prep | 29 | Clear; "Merchant Center" is Google's product name used descriptively |
-| Fixlog – GMC Review Prep | 24 | Says the wedge (a log of fixes) |
-| Prereview: GMC Policy Check | 27 | "Pre-review" = before you request a review |
+| ~~Recheck: Merchant Center Prep~~ | 29 | **Taken (checked 2026-11-16):** "Recheck Order Editing & Upsell" already uses the brand "Recheck" (Built for Shopify, 18 reviews). Names must be unique and brand-led, so don't use it. |
+| Fixlog – GMC Review Prep | 24 | Says the wedge (a log of fixes). No app named "Fixlog" found on 2026-11-16 (closest: "Foxlog Fulfillment"). |
+| Prereview: GMC Policy Check | 27 | "Pre-review" = before you request a review. No app named "Prereview" found on 2026-11-16. |
+
+New Merchant Center apps seen in the same searches (2026-11-16), not yet profiled: "Preflight Merchant Center Scan", "GMC Fix Map", "FeedFix: Merchant Center Fix".
 
 ## App introduction (≤ 100)
 > Check your storefront against Google's published Merchant Center rules and track what you fix.
