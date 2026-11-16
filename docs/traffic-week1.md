@@ -18,7 +18,7 @@ Kế hoạch Step 6 giả định: trả lời forum kèm link `/scan`, rồi đ
 **Hệ quả:**
 1. Trả lời trên các board thường **không đo được bằng số scan** (không có link). Nó chỉ xây uy tín và để lại câu trả lời cho người tìm Google sau này. Vẫn đáng làm, nhưng ít, và phải thật sự có ích.
 2. Ngưỡng hủy "< 30 scan sau ≥ 20 câu trả lời" **không còn ý nghĩa** với kênh không được gắn link. Chỉ tính các kênh có link: Ask and Offer, Reddit (nếu sub cho phép), Google Ads.
-3. Kênh đo được rõ nhất là **Google Ads $50 exact match** (mục 4) và **listing trên App Store** (SETUP mục 8).
+3. Kênh đo được rõ nhất là **listing trên App Store** (SETUP mục 8) và board **Ask and Offer**. Google Ads quá đắt cho giá $39 (mục 4).
 
 ## 1. Link có gắn tag: luôn dùng link này, không dùng link trần
 
@@ -100,16 +100,12 @@ Link: https://community.shopify.com/t/657684
 >
 > If it flags something that's wrong for your store, reply here and I'll fix the check.
 
-## 4. Google Ads $50 (kênh đo được rõ nhất; bạn tự tạo tài khoản và trả tiền)
+## 4. Google Ads: xem [docs/google-ads-test.md](google-ads-test.md)
 
-- **Từ khóa (exact match):** `[merchant center suspended]`, `[google merchant center suspended]`, `[merchant center misrepresentation]`, `[misrepresentation suspension]`, `[website needs improvement merchant center]`
-- **Landing:** `https://gmc-checker-wgme.onrender.com/scan?ref=gads`
-- **Ngân sách:** tổng $50, chia đều 7 ngày (~$7/ngày). Quốc gia: US, UK, CA, AU.
-- **Quảng cáo (Responsive Search Ad).** Headline ≤ 30 ký tự, description ≤ 90 ký tự (đã đếm):
-  - H: `Merchant Center Suspended?` · `Free Shopify Storefront Check` · `See What Google's Rules Flag` · `Every Finding Shown, Free` · `Fix It Before You Request` · `No Sign-Up Needed`
-  - D: `Check your Shopify store against Google's published Merchant Center website rules.` · `Each finding links to Google's rule and shows where to fix it in Shopify. Free.`
-  - Không dùng: "guaranteed", "get reinstated", "approval", "#1". Đúng luật trung thực của mình và luật quảng cáo Google.
-- **Đọc kết quả sau 7 ngày:** `npm run stats` (dòng `gads`) và trong Google Ads: cost/click, tổng click. Nếu ~$50 ra < 10 scan có tag `gads`, kênh trả tiền này quá đắt ở giai đoạn này.
+Cập nhật 2026-11-16: các từ khóa này giá khoảng **$20–25 mỗi click** (Ubersuggest, Mỹ), tổng chỉ khoảng 170 lượt tìm mỗi tháng. $50 chỉ mua được khoảng 2 click, nên **không đo được ngưỡng Step 6 bằng quảng cáo**. File kia có:
+- Bước 0 (bắt buộc): sửa ping giữ server thức.
+- Bước 1 (miễn phí): lấy giá thật trong Keyword Planner.
+- Bước 2: chiến dịch giới hạn $3 mỗi click, tổng tối đa $50, chỉ chạy nếu bước 1 cho phép.
 
 ## 5. Mỗi ngày (khoảng 30 phút)
 
