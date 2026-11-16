@@ -10,6 +10,8 @@ import { boundary } from "@shopify/shopify-app-react-router/server";
 import { authenticate } from "../shopify.server";
 import prisma from "../db.server";
 import { parseResults, profileInput, scanShop } from "../lib/appscan.server";
+import { getPass } from "../lib/pass.server";
+import { FREE_ATTEMPTS, snapshotAllowed } from "../lib/pass";
 import { diffScans } from "../engine/diff";
 import { CHECK_INFO } from "../engine/run";
 
@@ -30,23 +32,40 @@ const fmtDate = (d: Date | string) =>
   new Date(d).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
 const title = (id: string) => CHECK_INFO[id]?.title ?? id;
 
+/** Number of the next review attempt for this shop (1 if none recorded yet). */
+async function nextAttemptNo(shop: string): Promise<number> {
+  const profile = await prisma.shopProfile.findUnique({ where: { shop }, select: { shopKey: true } });
+  if (!profile?.shopKey) return 1;
+  const last = await prisma.reviewAttempt.findFirst({
+    where: { shopKey: profile.shopKey },
+    orderBy: { attemptNo: "desc" },
+    select: { attemptNo: true },
+  });
+  return (last?.attemptNo ?? 0) + 1;
+}
+
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const { session } = await authenticate.admin(request);
+  const { session, admin } = await authenticate.admin(request);
   const profile = await prisma.shopProfile.findUnique({ where: { shop: session.shop } });
-  const attempts = profile?.shopKey
-    ? await prisma.reviewAttempt.findMany({
-        where: { shopKey: profile.shopKey },
-        orderBy: { attemptNo: "desc" },
-        select: { attemptNo: true, requestedAt: true, label: true, outcome: true },
-      })
-    : [];
+  const [attempts, { pass }] = await Promise.all([
+    profile?.shopKey
+      ? prisma.reviewAttempt.findMany({
+          where: { shopKey: profile.shopKey },
+          orderBy: { attemptNo: "desc" },
+          select: { attemptNo: true, requestedAt: true, label: true, outcome: true },
+        })
+      : Promise.resolve([]),
+    getPass(admin),
+  ]);
+  const next = (attempts[0]?.attemptNo ?? 0) + 1;
   return {
     attempts: attempts.map((a) => ({ ...a, requestedAt: a.requestedAt.toISOString() })),
+    needsPass: !snapshotAllowed(next, pass),
   };
 };
 
 type ActionResult =
-  | { ok: false; error: string }
+  | { ok: false; error: string; needsPass?: boolean }
   | {
       ok: true;
       attemptNo: number;
@@ -60,11 +79,21 @@ type ActionResult =
     };
 
 export const action = async ({ request }: ActionFunctionArgs): Promise<ActionResult> => {
-  const { session } = await authenticate.admin(request);
+  const { session, admin } = await authenticate.admin(request);
   const form = await request.formData();
   const label = String(form.get("label") ?? "");
   if (!(label in LABELS)) return { ok: false, error: "Choose the issue Merchant Center shows for your account." };
   const consent = form.get("consent") === "on";
+
+  // 0. The first snapshot is free; later ones need the Reinstatement Pass. Checked before scanning.
+  const [{ pass }, next] = await Promise.all([getPass(admin), nextAttemptNo(session.shop)]);
+  if (!snapshotAllowed(next, pass)) {
+    return {
+      ok: false,
+      needsPass: true,
+      error: `Your first ${FREE_ATTEMPTS === 1 ? "snapshot is" : `${FREE_ATTEMPTS} snapshots are`} free. For snapshot ${next}, get the Reinstatement Pass.`,
+    };
+  }
 
   // 1. Fresh scan = the snapshot.
   const res = await scanShop(session.shop, await profileInput(session.shop));
@@ -131,7 +160,7 @@ export const action = async ({ request }: ActionFunctionArgs): Promise<ActionRes
 // ---------------------------------------------------------------- UI
 
 export default function Snapshot() {
-  const { attempts } = useLoaderData<typeof loader>();
+  const { attempts, needsPass } = useLoaderData<typeof loader>();
   const result = useActionData<typeof action>();
   const nav = useNavigation();
   const shopify = useAppBridge();
@@ -156,6 +185,14 @@ export default function Snapshot() {
           re-scans your store and lists exactly what changed since your first scan, so your request can say what you fixed.
           It is a record of changes, not a prediction: Google alone decides.
         </s-paragraph>
+        {needsPass ? (
+          <s-banner tone="info" heading="Your free snapshot is used">
+            <s-paragraph>
+              The Reinstatement Pass ($39 once, 60 days) gives a snapshot for every review request and unlimited scans.{" "}
+              <s-link href="/app/pass">See the pass</s-link>
+            </s-paragraph>
+          </s-banner>
+        ) : null}
         <Form method="post">
           {/* Hidden inputs carry the values, so submission doesn't depend on web-component form support. */}
           <input type="hidden" name="label" value={label} />
@@ -186,8 +223,16 @@ export default function Snapshot() {
       </s-section>
 
       {result && !result.ok ? (
-        <s-banner tone="critical" heading="Snapshot not taken">
-          <s-paragraph>{result.error}</s-paragraph>
+        <s-banner tone={result.needsPass ? "warning" : "critical"} heading="Snapshot not taken">
+          <s-paragraph>
+            {result.error}
+            {result.needsPass ? (
+              <>
+                {" "}
+                <s-link href="/app/pass">See the pass</s-link>
+              </>
+            ) : null}
+          </s-paragraph>
         </s-banner>
       ) : null}
 

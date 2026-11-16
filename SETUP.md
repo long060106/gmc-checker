@@ -1,6 +1,6 @@
 # Việc bạn cần tự làm (Claude không làm được vì cần tài khoản hoặc danh tính của bạn)
 
-Làm theo thứ tự. Mỗi bước có nhãn **[build now]** (làm ngay được) hoặc **[sell after DSO check]** (chờ DSO xác nhận rồi mới làm).
+Làm theo thứ tự. Mỗi bước có nhãn **[build now]** (làm ngay được) hoặc ghi rõ khi cần tài khoản, tiền hoặc quyết định của bạn.
 
 ## 0. Dời project ra khỏi OneDrive (nên làm, 5 phút) [build now]
 OneDrive sẽ đồng bộ hàng chục nghìn file trong `node_modules`, gây chậm và có lúc khóa file làm `npm` báo lỗi.
@@ -87,7 +87,9 @@ Render free tắt server sau 15 phút không có ai truy cập; lần mở sau p
 - Chạy "AI self-review" trên trang nộp app, rồi nộp.
 - **Đừng nộp lại khi đang chờ duyệt:** nộp lại sẽ bị đẩy xuống cuối hàng. Thời gian duyệt năm 2026 có lúc từ 2 tuần đến khoảng 3 tháng.
 
-## 9. Thu tiền [sell after DSO check]
-- Gặp DSO của UCF để xác nhận bạn có quyền làm việc trước.
-- Sau đó mới thêm `appPurchaseOneTimeCreate` (Reinstatement Pass $39) và cập nhật phần giá trong listing.
-- Trước bước này, **không** bật billing, **không** nhận pre-order.
+## 9. Thu tiền: Reinstatement Pass $39 [đã có code]
+Code đã xong: trang "Reinstatement Pass" trong app, mua một lần qua Shopify Billing, mở khóa 60 ngày. Bản miễn phí: 3 lần scan mỗi 30 ngày và snapshot đầu tiên.
+1. **Bật Public distribution (bắt buộc, kể cả để test):** Dev Dashboard (hoặc Partner Dashboard) → app → **Distribution** → chọn **Public distribution / Shopify App Store**. Không có bước này, Shopify báo "Apps without a public distribution cannot use the Billing API". ⚠️ Chọn rồi không đổi được, nhưng đây đúng là hướng đi (nộp App Store).
+2. **Test trên dev store:** mở app → Reinstatement Pass → "Get the pass for $39" → Shopify hiện trang duyệt → Approve. Dev store chỉ tạo giao dịch test, không mất tiền. Quay lại app phải thấy "Your pass is active until …".
+3. **Nhận tiền thật:** Partner Dashboard → **Payouts**: tài khoản ngân hàng và form thuế (W-9 hoặc W-8BEN). Đăng ký chương trình 0% revenue share cho $1 triệu đầu tiên.
+4. **Tiền thật chỉ về sau khi app được duyệt lên App Store.** Store thật thì tự tạo charge thật; dev store luôn là test. Muốn ép mọi charge thành test (ví dụ trước khi ra mắt), đặt `BILLING_TEST=true`.

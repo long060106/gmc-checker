@@ -21,6 +21,7 @@ export default function App() {
         <s-link href="/app">Home</s-link>
         <s-link href="/app/gmc-info">Merchant Center info</s-link>
         <s-link href="/app/snapshot">Before you request a review</s-link>
+        <s-link href="/app/pass">Reinstatement Pass</s-link>
       </s-app-nav>
       <Outlet />
     </AppProvider>

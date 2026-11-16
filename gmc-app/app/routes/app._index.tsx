@@ -10,6 +10,8 @@ import { boundary } from "@shopify/shopify-app-react-router/server";
 import { authenticate } from "../shopify.server";
 import prisma from "../db.server";
 import { parseResults, profileInput, scanShop } from "../lib/appscan.server";
+import { countRecentScans, getPass } from "../lib/pass.server";
+import { FREE_SCANS, FREE_WINDOW_DAYS, scansLeft } from "../lib/pass";
 import { CHECK_INFO, type CheckInfo } from "../engine/run";
 import type { Finding, Status } from "../engine/types";
 
@@ -18,10 +20,15 @@ const ASK_AFTER_DAYS = 10; // Google says reviews take 7 business days, up to 2 
 const SNOOZE_DAYS = 7; // "Still waiting" hides the question for a week
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const { session } = await authenticate.admin(request);
-  const profile = await prisma.shopProfile.findUnique({ where: { shop: session.shop } });
+  const { session, admin } = await authenticate.admin(request);
+  const [profile, { pass }, recent] = await Promise.all([
+    prisma.shopProfile.findUnique({ where: { shop: session.shop } }),
+    getPass(admin),
+    countRecentScans(session.shop),
+  ]);
   const hasGmcInfo = Boolean(profile?.gmcBusinessName || profile?.gmcPhone || profile?.gmcEmail || profile?.gmcAddress);
-  if (!profile?.shopKey) return { latest: null, askOutcome: [], hasGmcInfo };
+  const plan = { passActive: pass.active, passUntil: pass.active ? pass.expiresAt : null, scansLeft: scansLeft(recent, pass) };
+  if (!profile?.shopKey) return { latest: null, askOutcome: [], hasGmcInfo, ...plan };
 
   const scan = await prisma.scan.findFirst({ where: { shopKey: profile.shopKey }, orderBy: { createdAt: "desc" } });
   const now = Date.now();
@@ -49,16 +56,17 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       : null,
     askOutcome: attempts.map((a) => ({ id: a.id, attemptNo: a.attemptNo, requestedAt: a.requestedAt.toISOString() })),
     hasGmcInfo,
+    ...plan,
   };
 };
 
 type ActionResult =
   | { intent: "scan"; ok: true; findings: Finding[]; origin: string; createdAt: string }
-  | { intent: "scan"; ok: false; error: string }
+  | { intent: "scan"; ok: false; error: string; limit?: boolean }
   | { intent: "outcome"; ok: boolean; answer?: string };
 
 export const action = async ({ request }: ActionFunctionArgs): Promise<ActionResult> => {
-  const { session } = await authenticate.admin(request);
+  const { session, admin } = await authenticate.admin(request);
   const form = await request.formData();
 
   if (form.get("intent") === "outcome") {
@@ -74,6 +82,16 @@ export const action = async ({ request }: ActionFunctionArgs): Promise<ActionRes
       data: answer === "pending" ? { outcomeAt: new Date() } : { outcome: answer, outcomeAt: new Date() },
     });
     return { intent: "outcome", ok: true, answer };
+  }
+
+  const [{ pass }, recent] = await Promise.all([getPass(admin), countRecentScans(session.shop)]);
+  if (scansLeft(recent, pass) === 0) {
+    return {
+      intent: "scan",
+      ok: false,
+      limit: true,
+      error: `You've used your ${FREE_SCANS} free scans for the last ${FREE_WINDOW_DAYS} days. Your earlier results are still below.`,
+    };
   }
 
   const res = await scanShop(session.shop, await profileInput(session.shop));
@@ -152,7 +170,7 @@ function LatestStatuses({ results }: { results: Record<string, Status> }) {
 }
 
 export default function Index() {
-  const { latest, askOutcome, hasGmcInfo } = useLoaderData<typeof loader>();
+  const { latest, askOutcome, hasGmcInfo, passActive, passUntil, scansLeft: left } = useLoaderData<typeof loader>();
   const scanFetcher = useFetcher<typeof action>();
   const outcomeFetcher = useFetcher<typeof action>();
   const shopify = useAppBridge();
@@ -180,7 +198,7 @@ export default function Index() {
         Scan my store
       </s-button>
 
-      {askOutcome.length && outcomeFetcher.state === "idle" && !outcomeFetcher.data ? (
+      {askOutcome.length > 0 && outcomeFetcher.state === "idle" && !outcomeFetcher.data ? (
         <s-banner tone="info" heading={`Did Google finish reviewing your request from ${fmtDate(askOutcome[0].requestedAt)}?`}>
           <s-paragraph>
             One tap. If you opted in to sharing, your answer (with no store address) helps show which fixes other merchants made
@@ -205,7 +223,14 @@ export default function Index() {
         </s-banner>
       ) : null}
 
-      {result && !result.ok ? (
+      {result && !result.ok && "limit" in result && result.limit ? (
+        <s-banner tone="warning" heading="Free scans used up">
+          <s-paragraph>
+            {result.error} The Reinstatement Pass gives unlimited scans for 60 days.{" "}
+            <s-link href="/app/pass">See the pass</s-link>
+          </s-paragraph>
+        </s-banner>
+      ) : result && !result.ok ? (
         <s-banner tone="critical" heading="The scan didn't finish">
           <s-paragraph>{result.error}</s-paragraph>
         </s-banner>
@@ -261,6 +286,15 @@ export default function Index() {
           exactly what changed since your first scan, so you can list it in your request.
         </s-paragraph>
         <s-link href="/app/snapshot">Take a pre-review snapshot</s-link>
+      </s-section>
+
+      <s-section slot="aside" heading={passActive ? "Reinstatement Pass" : "Free plan"}>
+        <s-paragraph>
+          {passActive && passUntil
+            ? `Active until ${fmtDate(passUntil)}: unlimited scans and snapshots.`
+            : `${left ?? 0} of ${FREE_SCANS} free scans left in the last ${FREE_WINDOW_DAYS} days.`}
+        </s-paragraph>
+        {!passActive ? <s-link href="/app/pass">Unlimited scans for 60 days, $39 once</s-link> : null}
       </s-section>
 
       <s-section slot="aside" heading="About this check">

@@ -2,10 +2,12 @@ import "@shopify/shopify-app-react-router/adapters/node";
 import {
   ApiVersion,
   AppDistribution,
+  BillingInterval,
   shopifyApp,
 } from "@shopify/shopify-app-react-router/server";
 import { PrismaSessionStorage } from "@shopify/shopify-app-session-storage-prisma";
 import prisma from "./db.server";
+import { PASS_PLAN, PASS_PRICE_USD } from "./lib/pass";
 
 const shopify = shopifyApp({
   apiKey: process.env.SHOPIFY_API_KEY,
@@ -17,6 +19,10 @@ const shopify = shopifyApp({
   authPathPrefix: "/auth",
   sessionStorage: new PrismaSessionStorage(prisma),
   distribution: AppDistribution.AppStore,
+  // App Store rule 1.2.1: app charges must go through Shopify Billing. One-time charge, no subscription.
+  billing: {
+    [PASS_PLAN]: { amount: PASS_PRICE_USD, currencyCode: "USD", interval: BillingInterval.OneTime },
+  },
   future: {
     expiringOfflineAccessTokens: true,
   },

@@ -26,8 +26,9 @@ Rules this draft follows (App Store requirements, read 2026-11-09): name ≤ 30 
 merchant center suspended · misrepresentation · website needs improvement · google shopping policy · gmc compliance
 
 ## Pricing section
-- At launch: **Free** (no billing code exists yet).
-- After the DSO check: Free plan + "Reinstatement Pass" $39 one-time for 60 days (Shopify Billing, one-time charge).
+- **Free:** every finding of every scan, 3 scans per 30 days, the first pre-review snapshot, review history.
+- **Reinstatement Pass, $39 one-time (60 days):** unlimited scans, a snapshot for every review request. No subscription; charged once through Shopify Billing.
+- In the Partner Dashboard pricing form, list both. The app code is in `gmc-app/app/lib/pass.ts` (limits) and `app/routes/app.pass.tsx` (purchase page).
 
 ## Screenshots (3–6, 1600×900, no PII, no prices, no outcome promises)
 1. Report grouped by Identity / Contact / Policies / Site / Pricing / Claims.
