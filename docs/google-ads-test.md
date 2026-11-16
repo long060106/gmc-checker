@@ -33,14 +33,13 @@ Kiểm tra ngày 2026-11-16 cho thấy hai vấn đề:
 - Trang `/scan` mất **42 giây** ở lần tải đầu, vì server free của Render đang ngủ.
 - Job trên cron-job.org đang **Inactive**, lần chạy cuối báo `Failed (HTTP error)`.
 
-**Nguyên nhân:** job ping `http://…/privacy`. Render trả về redirect 301 sang `https://` ngay ở tầng proxy, nên server không được đánh thức. cron-job.org lại coi 301 là lỗi, sau nhiều lần lỗi thì tự tắt job.
+**Nguyên nhân (2 lỗi):**
+1. Job ping `http://…/privacy`. Render trả về redirect 301 sang `https://` ngay ở tầng proxy, nên server không được đánh thức. cron-job.org coi 301 là lỗi, sau nhiều lần lỗi thì tự tắt job.
+2. Đổi sang `https://…/privacy` vẫn báo `Failed (output too large)`: trang /privacy (7 KB), hoặc trang "đang khởi động" của Render khi server ngủ, quá lớn so với giới hạn của cron-job.org.
 
-**Cách sửa:**
-1. Vào console.cron-job.org → Cronjobs → job **gmc-checker** → **Edit**.
-2. Đổi URL thành **`https://gmc-checker-wgme.onrender.com/privacy`** (có chữ **s**).
-3. Schedule: **every 10 minutes**.
-4. Bật job (**Enable**), rồi **Save**.
-5. Khoảng 15 phút sau, mở **History**: các dòng phải ghi `200 OK`.
+**Đã sửa (2026-11-16, Claude làm theo yêu cầu của bạn):** thêm endpoint `/healthz` chỉ trả về `ok` (2 byte, không đụng database). Job **gmc-checker** giờ ping **`https://gmc-checker-wgme.onrender.com/healthz`** mỗi 10 phút và đã được bật lại.
+
+**Tự kiểm tra:** mở console.cron-job.org → job **gmc-checker** → **History**. Các dòng mới phải là `Successful` / `200 OK`. Nếu job lại chuyển sang **Inactive**, xem dòng lỗi gần nhất.
 
 Mỗi tài khoản Render free có 750 giờ chạy mỗi tháng. Một service thức 24/7 dùng khoảng 720–744 giờ, vẫn đủ.
 
