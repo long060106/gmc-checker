@@ -19,6 +19,7 @@ Rules this draft follows (App Store requirements, read 2026-11-09): name ≤ 30 
 - Scan your storefront against Google's published Merchant Center rules
 - Every finding shows evidence, Google's rule, and where to fix it in Shopify
 - Pre-review snapshot: see exactly what changed since your last scan
+- Review request kit: what changed, what's still flagged, your earlier requests
 - Dated history of your review requests and their outcomes
 - Reads only your public storefront. No customer data, no Admin API access
 
@@ -26,8 +27,8 @@ Rules this draft follows (App Store requirements, read 2026-11-09): name ≤ 30 
 merchant center suspended · misrepresentation · website needs improvement · google shopping policy · gmc compliance
 
 ## Pricing section
-- **Free:** every finding of every scan, 3 scans per 30 days, the first pre-review snapshot, review history.
-- **Reinstatement Pass, $39 one-time (60 days):** unlimited scans, a snapshot for every review request. No subscription; charged once through Shopify Billing.
+- **Free:** every finding of every scan, 3 scans per 30 days, the first pre-review snapshot and review kit, review history.
+- **Reinstatement Pass, $39 one-time (60 days):** unlimited scans, a snapshot and review kit for every review request. No subscription; charged once through Shopify Billing. 7-day refund from inside the app, once per store (a refund for the tool, not tied to Google's decision).
 - In the Partner Dashboard pricing form, list both. The app code is in `gmc-app/app/lib/pass.ts` (limits) and `app/routes/app.pass.tsx` (purchase page).
 
 ## Screenshots (3–6, 1600×900, no PII, no prices, no outcome promises)

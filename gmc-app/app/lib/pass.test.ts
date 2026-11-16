@@ -3,6 +3,7 @@ import {
   FREE_SCANS,
   PASS_PLAN,
   passFromPurchases,
+  refundable,
   scansLeft,
   snapshotAllowed,
   type Purchase,
@@ -59,9 +60,25 @@ describe("passFromPurchases", () => {
   });
 });
 
+describe("refunds", () => {
+  it("revokes the pass as soon as a refund is requested", () => {
+    const p = buy({ id: "gid://shopify/AppPurchaseOneTime/9" });
+    expect(passFromPurchases([p], false, NOW, new Set([p.id])).active).toBe(false);
+  });
+
+  it("allows one refund within 7 days of buying", () => {
+    const fresh = passFromPurchases([buy({ createdAt: daysAgo(6) })], false, NOW);
+    const old = passFromPurchases([buy({ createdAt: daysAgo(8) })], false, NOW);
+    expect(refundable(fresh, 0, NOW)).toBe(true);
+    expect(refundable(old, 0, NOW)).toBe(false);
+    expect(refundable(fresh, 1, NOW)).toBe(false); // already refunded once on this store
+    expect(refundable({ active: false }, 0, NOW)).toBe(false);
+  });
+});
+
 describe("free limits", () => {
   const free = { active: false } as const;
-  const paid = { active: true, expiresAt: daysAgo(-30), test: false } as const;
+  const paid = { active: true, expiresAt: daysAgo(-30), test: false, purchaseId: "x", purchasedAt: daysAgo(30) } as const;
 
   it("counts down free scans and never goes below zero", () => {
     expect(scansLeft(0, free)).toBe(FREE_SCANS);

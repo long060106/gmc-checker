@@ -93,3 +93,8 @@ Code đã xong: trang "Reinstatement Pass" trong app, mua một lần qua Shopif
 2. **Test trên dev store:** mở app → Reinstatement Pass → "Get the pass for $39" → Shopify hiện trang duyệt → Approve. Dev store chỉ tạo giao dịch test, không mất tiền. Quay lại app phải thấy "Your pass is active until …".
 3. **Nhận tiền thật:** Partner Dashboard → **Payouts**: tài khoản ngân hàng và form thuế (W-9 hoặc W-8BEN). Đăng ký chương trình 0% revenue share cho $1 triệu đầu tiên.
 4. **Tiền thật chỉ về sau khi app được duyệt lên App Store.** Store thật thì tự tạo charge thật; dev store luôn là test. Muốn ép mọi charge thành test (ví dụ trước khi ra mắt), đặt `BILLING_TEST=true`.
+5. **Hoàn tiền 7 ngày (bạn phải làm tay, hứa với khách là trong 3 ngày làm việc):** khách bấm "Request a refund" trong trang Pass → pass hết hiệu lực ngay và một dòng `RefundRequest` được lưu (Render logs có dòng `[refund] requested shop=…`). Shopify **không** tự hoàn tiền và **không** báo cho khách, nên:
+   - Mỗi ngày làm việc chạy `cd C:\dev\ad-project\gmc-app` rồi `npm run refunds` (cần `TURSO_DATABASE_URL` + `TURSO_AUTH_TOKEN` trong `.env` để đọc DB production; nhớ cảnh báo ở mục 5: dev lúc đó cũng dùng DB production).
+   - Với mỗi dòng "NOT YET": Partner Dashboard → **Stores** (hoặc Apps → app → History) → tìm store → charge "Reinstatement Pass" → **Details** → **Issue refund**. Nếu charge chưa thanh toán thì Shopify cho **credit** thay vì refund.
+   - Xong thì `npm run refunds -- --mark <id>`. Dòng có `TEST` là mua thử trên dev store: không có tiền để trả, chỉ cần mark.
+   - Mỗi store chỉ được hoàn 1 lần (code tự chặn). Hoàn tiền là cho công cụ, không phụ thuộc Google quyết định gì, nên không bao giờ hỏi "Google có duyệt không" trước khi hoàn.

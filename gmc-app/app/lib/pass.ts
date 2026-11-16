@@ -12,6 +12,8 @@ export const PASS_DAYS = 60;
 export const FREE_SCANS = 3;
 export const FREE_WINDOW_DAYS = 30;
 export const FREE_ATTEMPTS = 1;
+/** Money back on request within this many days of buying, no questions asked. Asking ends the pass. */
+export const REFUND_DAYS = 7;
 
 const DAY_MS = 24 * 3600_000;
 
@@ -23,25 +25,49 @@ export interface Purchase {
   createdAt: string; // ISO
 }
 
-export type PassStatus = { active: true; expiresAt: string; test: boolean } | { active: false };
+export type PassStatus =
+  | { active: true; expiresAt: string; test: boolean; purchaseId: string; purchasedAt: string }
+  | { active: false };
 
 /**
  * The pass is active if an approved purchase of the plan was made in the last PASS_DAYS days.
  * Test purchases count only on stores where test charges are expected (development stores),
- * so a test charge can never unlock a real store.
+ * so a test charge can never unlock a real store. Purchases in `revoked` (refund requested) never count.
  */
-export function passFromPurchases(purchases: Purchase[], allowTest: boolean, now: Date = new Date()): PassStatus {
-  let best: { expires: number; test: boolean } | null = null;
+export function passFromPurchases(
+  purchases: Purchase[],
+  allowTest: boolean,
+  now: Date = new Date(),
+  revoked: ReadonlySet<string> = new Set(),
+): PassStatus {
+  let best: { expires: number; p: Purchase } | null = null;
   for (const p of purchases) {
     if (p.name !== PASS_PLAN || p.status !== "ACTIVE") continue;
     if (p.test && !allowTest) continue;
+    if (revoked.has(p.id)) continue;
     const created = Date.parse(p.createdAt);
     if (Number.isNaN(created)) continue;
     const expires = created + PASS_DAYS * DAY_MS;
     if (expires <= now.getTime()) continue;
-    if (!best || expires > best.expires) best = { expires, test: p.test };
+    if (!best || expires > best.expires) best = { expires, p };
   }
-  return best ? { active: true, expiresAt: new Date(best.expires).toISOString(), test: best.test } : { active: false };
+  return best
+    ? {
+        active: true,
+        expiresAt: new Date(best.expires).toISOString(),
+        test: best.p.test,
+        purchaseId: best.p.id,
+        purchasedAt: best.p.createdAt,
+      }
+    : { active: false };
+}
+
+/**
+ * Whether the merchant can still ask for their money back on the current pass:
+ * within REFUND_DAYS of buying, and only once per store (buy, use, refund, repeat is not a free plan).
+ */
+export function refundable(pass: PassStatus, priorRefunds: number, now: Date = new Date()): boolean {
+  return pass.active && priorRefunds === 0 && now.getTime() - Date.parse(pass.purchasedAt) < REFUND_DAYS * DAY_MS;
 }
 
 /** Start of the rolling window for counting free scans. */

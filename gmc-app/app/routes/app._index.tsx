@@ -11,7 +11,7 @@ import { authenticate } from "../shopify.server";
 import prisma from "../db.server";
 import { parseResults, profileInput, scanShop } from "../lib/appscan.server";
 import { countRecentScans, getPass } from "../lib/pass.server";
-import { FREE_SCANS, FREE_WINDOW_DAYS, scansLeft } from "../lib/pass";
+import { FREE_SCANS, FREE_WINDOW_DAYS, PASS_PRICE_USD, REFUND_DAYS, scansLeft, snapshotAllowed } from "../lib/pass";
 import { CHECK_INFO, type CheckInfo } from "../engine/run";
 import type { Finding, Status } from "../engine/types";
 
@@ -23,14 +23,33 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { session, admin } = await authenticate.admin(request);
   const [profile, { pass }, recent] = await Promise.all([
     prisma.shopProfile.findUnique({ where: { shop: session.shop } }),
-    getPass(admin),
+    getPass(admin, session.shop),
     countRecentScans(session.shop),
   ]);
   const hasGmcInfo = Boolean(profile?.gmcBusinessName || profile?.gmcPhone || profile?.gmcEmail || profile?.gmcAddress);
   const plan = { passActive: pass.active, passUntil: pass.active ? pass.expiresAt : null, scansLeft: scansLeft(recent, pass) };
-  if (!profile?.shopKey) return { latest: null, askOutcome: [], hasGmcInfo, ...plan };
+  if (!profile?.shopKey) return { latest: null, askOutcome: [], rejected: null, hasGmcInfo, ...plan };
 
-  const scan = await prisma.scan.findFirst({ where: { shopKey: profile.shopKey }, orderBy: { createdAt: "desc" } });
+  const [scan, last] = await Promise.all([
+    prisma.scan.findFirst({ where: { shopKey: profile.shopKey }, orderBy: { createdAt: "desc" } }),
+    prisma.reviewAttempt.findFirst({
+      where: { shopKey: profile.shopKey },
+      orderBy: { attemptNo: "desc" },
+      select: { attemptNo: true, outcome: true, snapshotScanId: true },
+    }),
+  ]);
+  // After a "Rejected" answer: what was still flagged in that request's snapshot, and the next step.
+  // Shown until the merchant records their next request.
+  let rejected: { attemptNo: number; stillFlagged: number; nextNeedsPass: boolean } | null = null;
+  if (last?.outcome === "rejected") {
+    const snap = last.snapshotScanId ? await prisma.scan.findUnique({ where: { id: last.snapshotScanId } }) : null;
+    const statuses = snap ? Object.values(parseResults(snap)) : [];
+    rejected = {
+      attemptNo: last.attemptNo,
+      stillFlagged: statuses.filter((s) => s === "fail" || s === "warn").length,
+      nextNeedsPass: !snapshotAllowed(last.attemptNo + 1, pass),
+    };
+  }
   const now = Date.now();
   // For a pending attempt, outcomeAt = last time the merchant said "still waiting" (snooze).
   const attempts = await prisma.reviewAttempt.findMany({
@@ -55,6 +74,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       ? { createdAt: scan.createdAt.toISOString(), results: parseResults(scan), findings: latestFindings }
       : null,
     askOutcome: attempts.map((a) => ({ id: a.id, attemptNo: a.attemptNo, requestedAt: a.requestedAt.toISOString() })),
+    rejected,
     hasGmcInfo,
     ...plan,
   };
@@ -84,7 +104,7 @@ export const action = async ({ request }: ActionFunctionArgs): Promise<ActionRes
     return { intent: "outcome", ok: true, answer };
   }
 
-  const [{ pass }, recent] = await Promise.all([getPass(admin), countRecentScans(session.shop)]);
+  const [{ pass }, recent] = await Promise.all([getPass(admin, session.shop), countRecentScans(session.shop)]);
   if (scansLeft(recent, pass) === 0) {
     return {
       intent: "scan",
@@ -170,7 +190,8 @@ function LatestStatuses({ results }: { results: Record<string, Status> }) {
 }
 
 export default function Index() {
-  const { latest, askOutcome, hasGmcInfo, passActive, passUntil, scansLeft: left } = useLoaderData<typeof loader>();
+  const { latest, askOutcome, rejected, hasGmcInfo, passActive, passUntil, scansLeft: left } =
+    useLoaderData<typeof loader>();
   const scanFetcher = useFetcher<typeof action>();
   const outcomeFetcher = useFetcher<typeof action>();
   const shopify = useAppBridge();
@@ -210,6 +231,34 @@ export default function Index() {
             <s-button variant="tertiary" onClick={() => answer(askOutcome[0].id, "pending")}>
               Still waiting
             </s-button>
+          </s-stack>
+        </s-banner>
+      ) : null}
+
+      {rejected ? (
+        <s-banner tone="warning" heading={`Google didn't reinstate you after request #${rejected.attemptNo}`}>
+          <s-stack direction="block" gap="base">
+            <s-paragraph>
+              We can&apos;t know Google&apos;s reasons; Merchant Center&apos;s issue details are the only official word.{" "}
+              {rejected.stillFlagged > 0
+                ? `In the snapshot for that request, our storefront check still flagged ${rejected.stillFlagged} ${rejected.stillFlagged === 1 ? "item" : "items"}. Those are the first place to look.`
+                : "In the snapshot for that request, every storefront criterion we check passed, so the cause may be outside the storefront: product data, the feed, or account verification."}{" "}
+              {rejected.attemptNo === 1
+                ? "If the next review is also unsuccessful, a cool-down can start, so make the next request count."
+                : "Merchant Center may show a cool-down before you can ask again."}
+            </s-paragraph>
+            <s-stack direction="inline" gap="base">
+              <s-button href={`/app/kit/${rejected.attemptNo}`}>Open kit #{rejected.attemptNo}</s-button>
+              {rejected.nextNeedsPass ? (
+                <s-button variant="primary" href="/app/pass">
+                  {`Get the pass for request #${rejected.attemptNo + 1} ($${PASS_PRICE_USD}, ${REFUND_DAYS}-day refund)`}
+                </s-button>
+              ) : (
+                <s-button variant="primary" href="/app/snapshot">
+                  {`Take snapshot #${rejected.attemptNo + 1}`}
+                </s-button>
+              )}
+            </s-stack>
           </s-stack>
         </s-banner>
       ) : null}
@@ -294,7 +343,9 @@ export default function Index() {
             ? `Active until ${fmtDate(passUntil)}: unlimited scans and snapshots.`
             : `${left ?? 0} of ${FREE_SCANS} free scans left in the last ${FREE_WINDOW_DAYS} days.`}
         </s-paragraph>
-        {!passActive ? <s-link href="/app/pass">Unlimited scans for 60 days, $39 once</s-link> : null}
+        {!passActive ? (
+          <s-link href="/app/pass">{`Unlimited scans for 60 days, $${PASS_PRICE_USD} once, ${REFUND_DAYS}-day refund`}</s-link>
+        ) : null}
       </s-section>
 
       <s-section slot="aside" heading="About this check">

@@ -14,18 +14,8 @@ import { getPass } from "../lib/pass.server";
 import { FREE_ATTEMPTS, snapshotAllowed } from "../lib/pass";
 import { diffScans } from "../engine/diff";
 import { CHECK_INFO } from "../engine/run";
+import { LABELS } from "../lib/labels";
 
-// Same labels as the public /scan page (Google's own headings on the Editorial and Misrepresentation pages).
-const LABELS: Record<string, string> = {
-  misrepresentation: "Misrepresentation",
-  website_needs_improvement: "Website needs improvement",
-  insufficient_contact_info: "Insufficient contact information",
-  missing_return_policy: "Missing return and refund policy",
-  site_inaccessible: "Site inaccessible",
-  login_required: "Login required",
-  cannot_complete_purchase: "Users cannot complete purchase",
-  other: "Other / not sure",
-};
 const OUTCOME: Record<string, string> = { pending: "Waiting", reinstated: "Reinstated", rejected: "Rejected", unknown: "Unknown" };
 
 const fmtDate = (d: Date | string) =>
@@ -55,7 +45,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
           select: { attemptNo: true, requestedAt: true, label: true, outcome: true },
         })
       : Promise.resolve([]),
-    getPass(admin),
+    getPass(admin, session.shop),
   ]);
   const next = (attempts[0]?.attemptNo ?? 0) + 1;
   return {
@@ -86,7 +76,7 @@ export const action = async ({ request }: ActionFunctionArgs): Promise<ActionRes
   const consent = form.get("consent") === "on";
 
   // 0. The first snapshot is free; later ones need the Reinstatement Pass. Checked before scanning.
-  const [{ pass }, next] = await Promise.all([getPass(admin), nextAttemptNo(session.shop)]);
+  const [{ pass }, next] = await Promise.all([getPass(admin, session.shop), nextAttemptNo(session.shop)]);
   if (!snapshotAllowed(next, pass)) {
     return {
       ok: false,
@@ -263,7 +253,16 @@ export default function Snapshot() {
             <s-box padding="base" borderWidth="base" borderRadius="base" background="subdued">
               <pre style={{ margin: 0, whiteSpace: "pre-wrap" }}>{result.summaryText}</pre>
             </s-box>
-            <s-button onClick={() => copy(result.summaryText)}>Copy</s-button>
+            <s-stack direction="inline" gap="base">
+              <s-button onClick={() => copy(result.summaryText)}>Copy</s-button>
+              <s-button href={`/app/kit/${result.attemptNo}`} variant="primary">
+                Open your review kit
+              </s-button>
+            </s-stack>
+            <s-paragraph>
+              The review kit is the full record for this request: what changed, what is still flagged with where to fix it
+              and Google&apos;s rule, and your earlier requests. Copy it or download it as a text file.
+            </s-paragraph>
             <s-paragraph>
               About 10 days from now we&apos;ll ask on the app home page whether Google reinstated you. One tap.
             </s-paragraph>
@@ -279,6 +278,7 @@ export default function Snapshot() {
               <s-table-header>Date</s-table-header>
               <s-table-header>Issue</s-table-header>
               <s-table-header>Outcome</s-table-header>
+              <s-table-header>Kit</s-table-header>
             </s-table-header-row>
             <s-table-body>
               {attempts.map((a) => (
@@ -287,6 +287,9 @@ export default function Snapshot() {
                   <s-table-cell>{fmtDate(a.requestedAt)}</s-table-cell>
                   <s-table-cell>{LABELS[a.label] ?? a.label}</s-table-cell>
                   <s-table-cell>{OUTCOME[a.outcome] ?? a.outcome}</s-table-cell>
+                  <s-table-cell>
+                    <s-link href={`/app/kit/${a.attemptNo}`}>Open</s-link>
+                  </s-table-cell>
                 </s-table-row>
               ))}
             </s-table-body>

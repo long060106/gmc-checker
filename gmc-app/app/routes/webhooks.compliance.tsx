@@ -25,6 +25,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       await db.$transaction([
         db.session.deleteMany({ where: { shop } }),
         db.appScanDetail.deleteMany({ where: { shop } }),
+        db.refundRequest.deleteMany({ where: { shop } }),
         ...(profile?.shopKey
           ? [
               db.reviewAttempt.deleteMany({ where: { shopKey: profile.shopKey } }), // AttemptFix rows cascade
