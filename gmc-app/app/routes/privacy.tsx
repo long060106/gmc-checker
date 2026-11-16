@@ -38,9 +38,14 @@ export default function Privacy() {
           page text.
         </li>
         <li>
-          <strong>Your email, only if you join the waitlist.</strong> With it, your optional answers about whether your
-          Merchant Center account is suspended and which issue it shows, and whether you asked for the 14-day follow-up
-          email.
+          <strong>Your optional answers</strong> to &quot;Is your account suspended or warned?&quot; and &quot;Which
+          issue?&quot;, and the tag on the link that brought you here (for example <code>?ref=reddit</code>). They are
+          stored with the scan result, without your email, so we can count how many people who scan are suspended and
+          which sites send them.
+        </li>
+        <li>
+          <strong>Your email, only if you join the waitlist.</strong> With it, the same optional answers and whether you
+          asked for the 14-day follow-up email.
         </li>
         <li>
           <strong>Your IP address, briefly,</strong> in server memory to limit how many scans one network can run. It is

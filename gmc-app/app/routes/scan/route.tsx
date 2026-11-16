@@ -1,7 +1,8 @@
 // Public web checker at /scan. No Shopify auth: anyone can scan a public Shopify storefront.
 // Never throws to the user: every failure becomes a friendly message (App Store req 2.1.1 mindset).
 import type { ActionFunctionArgs, MetaFunction } from "react-router";
-import { Form, Link, data, useActionData, useFetcher, useNavigation } from "react-router";
+import { useState } from "react";
+import { Form, Link, data, useActionData, useFetcher, useNavigation, useSearchParams } from "react-router";
 import { randomBytes } from "node:crypto";
 
 import prisma from "../../db.server";
@@ -10,6 +11,7 @@ import { CHECK_INFO, ENGINE_VERSION, runAll } from "../../engine/run";
 import type { Finding, Status } from "../../engine/types";
 import { shopKey } from "../../lib/shopkey.server";
 import { clientIp, rateLimit } from "../../lib/ratelimit.server";
+import { LABELS } from "../../lib/labels";
 
 import styles from "./styles.module.css";
 
@@ -22,26 +24,22 @@ export const meta: MetaFunction = () => [
   },
 ];
 
-const LABELS: Record<string, string> = {
-  misrepresentation: "Misrepresentation",
-  website_needs_improvement: "Website needs improvement",
-  insufficient_contact_info: "Insufficient contact information",
-  missing_return_policy: "Missing return and refund policy",
-  site_inaccessible: "Site inaccessible",
-  login_required: "Login required",
-  cannot_complete_purchase: "Users cannot complete purchase",
-  other: "Other / not sure",
-};
-
 const GROUP_ORDER = ["Site", "Identity", "Contact", "Policies", "Pricing", "Claims"] as const;
 
 type ScanResult =
   | { intent: "scan"; ok: true; scanId: string; origin: string; findings: Finding[] }
   | { intent: "scan"; ok: false; error: string };
 type WaitlistResult = { intent: "waitlist"; ok: true; optedIn: boolean } | { intent: "waitlist"; ok: false; error: string };
-type ActionResult = ScanResult | WaitlistResult;
+type AnswerResult = { intent: "answer"; ok: boolean };
+type ActionResult = ScanResult | WaitlistResult | AnswerResult;
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+/** Link tag for the 7-day test, e.g. /scan?ref=reddit-ppc. Anything else is dropped. */
+const cleanRef = (v: FormDataEntryValue | null) => {
+  const r = String(v ?? "").trim().toLowerCase();
+  return /^[a-z0-9][a-z0-9-]{0,39}$/.test(r) ? r : null;
+};
+const SUSPENDED = new Set(["yes", "no", "unsure"]);
 
 export async function action({ request }: ActionFunctionArgs) {
   let form: FormData;
@@ -52,6 +50,7 @@ export async function action({ request }: ActionFunctionArgs) {
   }
   const intent = String(form.get("intent") ?? "scan");
   if (intent === "waitlist") return joinWaitlist(form);
+  if (intent === "answer") return saveAnswer(form);
   return runScan(request, form);
 }
 
@@ -82,11 +81,37 @@ async function runScan(request: Request, form: FormData) {
         gmcNameProvided: Boolean(gmcBusinessName),
       },
     });
+    try {
+      await prisma.scanContext.create({ data: { scanId: scan.id, channel: cleanRef(form.get("ref")) } });
+    } catch (e) {
+      console.error("[scan] context not saved", e); // never block the report on stats
+    }
     return data<ActionResult>({ intent: "scan", ok: true, scanId: scan.id, origin, findings });
   } catch (e) {
     if (e instanceof CrawlError) return data<ActionResult>({ intent: "scan", ok: false, error: e.message });
     console.error("[scan] unexpected error", e);
     return data<ActionResult>({ intent: "scan", ok: false, error: "We couldn't finish this scan. Please try again in a minute." });
+  }
+}
+
+/** The two optional questions, saved as soon as they're answered, with or without an email. */
+async function saveAnswer(form: FormData) {
+  const scanId = String(form.get("scanId") ?? "").slice(0, 40);
+  const suspendedRaw = String(form.get("suspended") ?? "");
+  const labelRaw = String(form.get("label") ?? "");
+  if (!scanId) return data<ActionResult>({ intent: "answer", ok: false }, { status: 400 });
+  try {
+    const res = await prisma.scanContext.updateMany({
+      where: { scanId },
+      data: {
+        suspended: SUSPENDED.has(suspendedRaw) ? suspendedRaw : null,
+        label: labelRaw in LABELS ? labelRaw : null,
+      },
+    });
+    return data<ActionResult>({ intent: "answer", ok: res.count > 0 });
+  } catch (e) {
+    console.error("[scan] answer not saved", e);
+    return data<ActionResult>({ intent: "answer", ok: false });
   }
 }
 
@@ -201,8 +226,20 @@ function Report({ origin, findings, scanId }: { origin: string; findings: Findin
 
 function Waitlist({ scanId }: { scanId: string }) {
   const fetcher = useFetcher<typeof action>();
+  const answers = useFetcher<typeof action>();
+  const [suspended, setSuspended] = useState("");
+  const [label, setLabel] = useState("");
   const res = fetcher.data as ActionResult | undefined;
   if (res?.intent === "waitlist" && res.ok) return <WaitlistThanks optedIn={res.optedIn} />;
+
+  // Save the answers on change, so they count even if the visitor never leaves an email.
+  const save = (next: { suspended?: string; label?: string }) => {
+    const s = next.suspended ?? suspended;
+    const l = next.label ?? label;
+    if (next.suspended !== undefined) setSuspended(s);
+    if (next.label !== undefined) setLabel(l);
+    answers.submit({ intent: "answer", scanId, suspended: s, label: l }, { method: "post" });
+  };
 
   return (
     <fetcher.Form method="post" className={styles.waitlist}>
@@ -216,20 +253,27 @@ function Waitlist({ scanId }: { scanId: string }) {
 
       <fieldset className={styles.fieldset}>
         <legend>Is your Merchant Center account currently suspended or warned?</legend>
-        <label>
-          <input type="radio" name="suspended" value="yes" /> Yes
-        </label>
-        <label>
-          <input type="radio" name="suspended" value="no" /> No
-        </label>
-        <label>
-          <input type="radio" name="suspended" value="unsure" /> Not sure
-        </label>
+        {[
+          ["yes", "Yes"],
+          ["no", "No"],
+          ["unsure", "Not sure"],
+        ].map(([value, text]) => (
+          <label key={value}>
+            <input
+              type="radio"
+              name="suspended"
+              value={value}
+              checked={suspended === value}
+              onChange={() => save({ suspended: value })}
+            />{" "}
+            {text}
+          </label>
+        ))}
       </fieldset>
 
       <label className={styles.field}>
         <span>Which issue does Merchant Center show?</span>
-        <select name="label" defaultValue="">
+        <select name="label" value={label} onChange={(e) => save({ label: e.currentTarget.value })}>
           <option value="">— Choose —</option>
           {Object.entries(LABELS).map(([v, t]) => (
             <option key={v} value={v}>
@@ -277,6 +321,7 @@ function WaitlistThanks({ optedIn }: { optedIn: boolean }) {
 
 export default function ScanPage() {
   const result = useActionData<typeof action>() as ActionResult | undefined;
+  const [params] = useSearchParams();
   const nav = useNavigation();
   const scanning = nav.state !== "idle" && nav.formData?.get("intent") !== "waitlist";
 
@@ -292,6 +337,7 @@ export default function ScanPage() {
 
       <Form method="post" className={styles.scanForm}>
         <input type="hidden" name="intent" value="scan" />
+        <input type="hidden" name="ref" value={params.get("ref") ?? ""} />
         <label className={styles.field}>
           <span>Store address</span>
           <input name="storeUrl" required placeholder="yourstore.com" inputMode="url" autoComplete="url" maxLength={300} />

@@ -76,7 +76,9 @@ Render free tắt server sau 15 phút không có ai truy cập; lần mở sau p
 - Viết xong thì gửi Claude review.
 
 ## 7. Test tín hiệu 7 ngày (phải là bạn, vì cần tài khoản forum) [build now]
-- Trả lời 3 bài mỗi ngày trên Shopify Community, Merchant Center Help Community và Reddit, theo [research/2026-11-09-steps-4-7.md](research/2026-11-09-steps-4-7.md), Step 6.
+- **Đọc trước: [docs/traffic-week1.md](docs/traffic-week1.md).** Luật forum (Shopify Community board thường và Google Help Community cấm link /scan), 3 bản nháp trả lời, bài cho board Ask and Offer, link có gắn tag `?ref=`, và kế hoạch Google Ads $50.
+- Đo mỗi tối: `npm run stats -- --since <ngày bắt đầu>`.
+- Trả lời bài trên Shopify Community, Merchant Center Help Community và Reddit, theo [research/2026-11-09-steps-4-7.md](research/2026-11-09-steps-4-7.md), Step 6.
 - Bản nháp bài hướng dẫn dùng lâu dài nằm ở [docs/forum-post-draft.md](docs/forum-post-draft.md).
 - **Đọc luật tự quảng cáo (self-promotion) của từng forum trước khi đăng link.**
 - Mỗi tuần ghi 5 cặp public vào [data/public-pairs.csv](data/public-pairs.csv), theo [docs/public-pairs-coding.md](docs/public-pairs-coding.md).

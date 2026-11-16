@@ -29,6 +29,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         ...(profile?.shopKey
           ? [
               db.reviewAttempt.deleteMany({ where: { shopKey: profile.shopKey } }), // AttemptFix rows cascade
+              // Explicit, in case the database doesn't enforce the cascade.
+              db.scanContext.deleteMany({ where: { scan: { shopKey: profile.shopKey } } }),
               db.scan.deleteMany({ where: { shopKey: profile.shopKey } }),
             ]
           : []),

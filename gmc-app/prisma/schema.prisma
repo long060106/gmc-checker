@@ -44,8 +44,22 @@ model Scan {
   results         String // JSON: { [checkId]: "pass" | "warn" | "fail" | "na" }
   source          String // "web" | "app"
   gmcNameProvided Boolean  @default(false)
+  context         ScanContext?
 
   @@index([shopKey, createdAt])
+}
+
+// Web scans only, for the 7-day signal test: which link brought the visitor (?ref=…) and their
+// optional answers. Stored without email, so suspended share is measured over everyone who scans.
+model ScanContext {
+  scanId    String   @id
+  scan      Scan     @relation(fields: [scanId], references: [id], onDelete: Cascade)
+  channel   String? // e.g. "sc-community", "reddit-ppc"; null when the link had no ref
+  suspended String? // yes | no | unsure
+  label     String? // same values as ReviewAttempt.label
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
 }
 
 model ReviewAttempt {

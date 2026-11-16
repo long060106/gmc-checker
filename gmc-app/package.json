@@ -22,6 +22,7 @@
     "test:watch": "vitest",
     "outcome:send": "tsx scripts/send-outcome-emails.ts",
     "refunds": "tsx scripts/refunds.ts",
+    "stats": "tsx scripts/stats.ts",
     "db:turso-migrate": "tsx scripts/turso-migrate.ts",
     "render-start": "npm run db:turso-migrate && npm run start"
   },
