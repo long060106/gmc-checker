@@ -42,7 +42,7 @@ function buildEmail(base: string, token: string, postal: string) {
   const text = [
     "Hi,",
     "",
-    "About two weeks ago you ran our free storefront check and asked us to check in.",
+    "About two weeks ago you ran the free Fixlog storefront check and asked us to check in.",
     "",
     "Did Google finish reviewing your Merchant Center account? Open the link that fits and press the button:",
     "",
@@ -62,7 +62,7 @@ function buildEmail(base: string, token: string, postal: string) {
     `<a href="${esc(link(a))}" style="display:inline-block;margin:4px 8px 4px 0;padding:10px 16px;border:1px solid #1f5199;border-radius:6px;color:#1f5199;text-decoration:none">${label}</a>`;
   const html = `<!doctype html><html><body style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;line-height:1.5;color:#1a1a1a;max-width:560px">
 <p>Hi,</p>
-<p>About two weeks ago you ran our free storefront check and asked us to check in.</p>
+<p>About two weeks ago you ran the free Fixlog storefront check and asked us to check in.</p>
 <p><strong>Did Google finish reviewing your Merchant Center account?</strong></p>
 <p>${btn("reinstated", "Reinstated")}${btn("rejected", "Rejected")}${btn("pending", "Still waiting")}</p>
 <p style="color:#5c5f62">We only use answers as counts. We never publish your email or your store. This is the only email we send about it.</p>

@@ -88,7 +88,7 @@ Link: https://community.shopify.com/t/657684
 
 > **Title:** Free storefront check for Merchant Center "Misrepresentation" / "Website needs improvement" (I built it)
 >
-> Disclosure: I built this tool. It's free, with no sign-up.
+> Disclosure: I built this tool (it's called Fixlog). It's free, with no sign-up.
 >
 > It reads your public store the way Google's crawler does (server HTML, no JavaScript) and checks it against Google's published Merchant Center website requirements. That covers contact details, business-name consistency, return/refund/shipping policy content, placeholder text, broken links, prices in structured data vs. the page, and claims Google calls unreliable. Every finding shows what it saw, the Google help page the rule comes from, and where to fix it in Shopify. Nothing is hidden behind a paywall.
 >

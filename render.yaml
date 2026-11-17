@@ -11,7 +11,7 @@ services:
     rootDir: gmc-app
     buildCommand: npm ci && npx prisma generate && npm run build
     startCommand: npm run render-start
-    healthCheckPath: /privacy
+    healthCheckPath: /healthz
     autoDeploy: true
     envVars:
       - key: NODE_VERSION

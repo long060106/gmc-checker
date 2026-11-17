@@ -22,11 +22,11 @@ export default function Privacy() {
       <h1>Privacy policy</h1>
       <p>Last updated: November 16, 2026.</p>
       <p>
-        This policy covers Fixlog&apos;s free storefront check at <Link to="/scan">/scan</Link> and its waitlist. We
-        collect as little as we can.
+        This policy covers Fixlog: the free storefront check at <Link to="/scan">/scan</Link> with its waitlist, and
+        the Fixlog app for Shopify. We collect as little as we can.
       </p>
 
-      <h2>What we collect</h2>
+      <h2>What we collect on the web checker (/scan)</h2>
       <ul>
         <li>
           <strong>The store address you scan.</strong> We fetch that store's public pages to run the checks. We do not
@@ -52,9 +52,44 @@ export default function Privacy() {
           not written to our database.
         </li>
       </ul>
+      <h2>What we collect in the Fixlog app for Shopify</h2>
+      <ul>
+        <li>
+          <strong>Your shop&apos;s myshopify.com address and an access token</strong> issued by Shopify when you install
+          the app, so the app can open inside your Shopify admin and use Shopify Billing. The app requests no access
+          scopes, so it cannot read your products, orders or customers.
+        </li>
+        <li>
+          <strong>The Merchant Center details you type in</strong> (business name, phone, email, address), if you choose
+          to. They are only used to compare with what your storefront shows.
+        </li>
+        <li>
+          <strong>Scan results and findings,</strong> including short excerpts of your public pages that a finding
+          quotes as evidence.
+        </li>
+        <li>
+          <strong>Your review requests:</strong> the suspension label you pick, the dates, which checks changed between
+          snapshots, and the outcome you report.
+        </li>
+        <li>
+          <strong>Refund requests:</strong> the purchase ID and the reason you give, if any. Payments are handled by
+          Shopify Billing; we never see card or bank details.
+        </li>
+      </ul>
       <p>
-        We do not collect any data about your store's customers, orders or payments. The check only reads pages that
-        anyone on the internet can see.
+        <strong>Sharing outcomes is opt-in.</strong> Only if you tick &quot;Share my anonymized fixes and
+        outcome&quot; do we use that request (which checks changed and the outcome, without your store address) in
+        aggregate statistics, and we only publish numbers for groups of at least 5 stores.
+      </p>
+      <p>
+        We do not collect any data about your store&apos;s customers, orders or payments, in the app or on the web
+        checker. Both only read pages that anyone on the internet can see.
+      </p>
+
+      <h2>Where it is stored</h2>
+      <p>
+        On servers run by Render (the web server) and Turso (the database), both in the United States. Emails are sent
+        through Resend.
       </p>
 
       <h2>Why</h2>
@@ -77,7 +112,12 @@ export default function Privacy() {
       <h2>How long we keep it</h2>
       <ul>
         <li>Waitlist entries: until the app launches and you've been told, or until you ask us to delete them.</li>
-        <li>Scan results (hashed store key, no address): kept for aggregate statistics.</li>
+        <li>Web checker scan results (hashed store key, no address): kept for aggregate statistics.</li>
+        <li>
+          Shopify app data: the access token is deleted when you uninstall. 48 hours after you uninstall, Shopify asks
+          us to erase your shop&apos;s data and we delete everything the app stored for it: Merchant Center details,
+          scans, findings, review history and refund requests.
+        </li>
       </ul>
 
       <h2>Your choices</h2>

@@ -1,5 +1,7 @@
 # Shopify App Store listing — draft (for Long to edit)
 
+**Chosen 2026-11-16:** listing name **Fixlog – GMC Review Prep**; app name in the Dev Dashboard **Fixlog** (Req 4.1.1 only needs the two to share a word). Icon: `docs/listing/icon-1200.png` (already uploaded to the Fixlog app). Privacy policy URL: `https://gmc-checker-wgme.onrender.com/privacy`.
+
 Rules this draft follows (App Store requirements, read 2026-11-09): name ≤ 30 characters, brand first, not leading with a platform or business name (Req 4.1.2); no guarantees or "best/first/only" (Req 4.3.3); pricing only in the pricing section (Req 4.2); no Shopify logos in images (Req 4.4.3). Character counts were measured, not estimated.
 
 ## Name (pick one, then search the App Store to make sure it's unique)
@@ -23,7 +25,7 @@ New Merchant Center apps seen in the same searches (2026-11-16), not yet profile
 - Pre-review snapshot: see exactly what changed since your last scan
 - Review request kit: what changed, what's still flagged, your earlier requests
 - Dated history of your review requests and their outcomes
-- Reads only your public storefront. No customer data, no Admin API access
+- Reads only your public storefront. No customer or order data
 
 ## Search terms (≤ 5)
 merchant center suspended · misrepresentation · website needs improvement · google shopping policy · gmc compliance
