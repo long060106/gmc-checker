@@ -61,9 +61,13 @@ Render free không có ổ đĩa giữ lại được (mỗi lần khởi độn
 4. Kiểm tra: mở `https://gmc-checker-wgme.onrender.com/scan` và scan thử `allbirds.com`.
 
 **4.3 Giữ server không ngủ**
-Render free tắt server sau 15 phút không có ai truy cập; lần mở sau phải đợi khoảng 1 phút. Người từ forum bấm link mà phải đợi 1 phút sẽ bỏ đi, làm sai kết quả test 7 ngày. Cách xử lý: đăng ký cron-job.org (free), tạo job gọi `https://gmc-checker-wgme.onrender.com/privacy` mỗi 10 phút. Render free cho 750 giờ/tháng, đủ cho 1 server chạy suốt tháng.
+Render free tắt server sau 15 phút không có ai truy cập; lần mở sau phải đợi khoảng 1 phút. Người từ forum bấm link mà phải đợi 1 phút sẽ bỏ đi, làm sai kết quả test 7 ngày. Cách xử lý: đăng ký cron-job.org (free), tạo job gọi `https://gmc-checker-wgme.onrender.com/healthz` mỗi 10 phút (đã làm 2026-11-16; đừng dùng `/privacy`, trang đó quá lớn với cron-job.org). Render free cho 750 giờ/tháng, đủ cho 1 server chạy suốt tháng.
 
-**Lưu ý:** cấu hình Shopify (`shopify.app.toml`) vẫn trỏ về máy bạn khi chạy `npm run dev`. Bản Render lúc này chỉ phục vụ trang `/scan` công khai. Trước khi nộp App Store sẽ tách cấu hình dev và production.
+**Hai app Shopify (tách từ 2026-11-16):**
+- **Dev:** `shopify.app.toml`, app "Long Nguyen" (client_id `414f8f…`). Đây là cấu hình mặc định; `npm run dev` chỉ dùng app này và đổi URL của nó sang tunnel.
+- **Production:** `shopify.app.production.toml`, app **"Fixlog"** (client_id `af9f784b…570cb`), chạy trên Render. Không bao giờ tự đổi URL. Đẩy thay đổi cấu hình bằng `npm run deploy -- --config production --allow-updates`.
+- Render dùng app Fixlog: `SHOPIFY_API_KEY` = client ID của Fixlog. `SHOPIFY_API_SECRET` phải là **Client secret của Fixlog**: Dev Dashboard → Apps → Fixlog → **Settings** → Client secret → nút copy → dán vào Render → Environment → **Save, rebuild, and deploy**. Bạn tự dán, Claude không dán secret.
+- Hai app "Long Nguyen" (Nov 11, 0 lượt cài) và "gmc-checker-dev" trong Dev Dashboard không dùng tới. Muốn dọn thì tự xóa; Claude không xóa.
 
 ## 5. Email hỏi kết quả sau 14 ngày [build now]
 1. Đăng ký Resend và xác minh tên miền. Script gửi email chạy **trên máy bạn** nhưng đọc database Turso, nên ghi vào `gmc-app/.env` (không commit file này): `TURSO_DATABASE_URL`, `TURSO_AUTH_TOKEN`, `RESEND_API_KEY`, `MAIL_FROM="Tên <support@domain>"`, `MAIL_POSTAL_ADDRESS="..."`, `APP_PUBLIC_URL=https://gmc-checker-wgme.onrender.com`.
