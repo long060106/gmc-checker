@@ -25,6 +25,7 @@ Updated 2026-11-16 for the production app **Fixlog** (`shopify.app.production.to
 - [x] Privacy policy at `https://gmc-checker-wgme.onrender.com/privacy` covers the web checker and the Shopify app
 - [x] `SHOPIFY_API_SECRET` on Render = Fixlog's client secret (Long, 2026-11-20)
 - [ ] Install Fixlog on the dev store and click through steps 1–6 above with no 404/500 (Req 2.1.1)
+  - 2026-11-21: installed on long-gmc-test; steps 1, 2 (password banner), 3 and 6 OK. Step 2 full report waits for Long to save the storefront password in the app. Step 5 fails until Public distribution is chosen: Shopify answers "Apps without a public distribution cannot use the Billing API" (the app shows "Purchase not started", nothing charged).
 - [ ] `CONTACT_EMAIL` set on Render, so the privacy page shows a real contact email
 - [ ] Public distribution chosen on the Fixlog app (Long only; can't be undone; SETUP §9.1)
 - [ ] Emergency developer contact set (email + phone) in the Partner/Dev Dashboard (Long)
