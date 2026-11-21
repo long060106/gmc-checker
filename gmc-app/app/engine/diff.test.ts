@@ -1,5 +1,16 @@
 import { describe, expect, it } from "vitest";
-import { diffScans, isBlockedScan } from "./diff";
+import { canBeBaseline, diffScans, isBlockedScan } from "./diff";
+
+describe("canBeBaseline", () => {
+  it("accepts in-app scans and public scans without a typed-in Merchant Center name", () => {
+    expect(canBeBaseline({ source: "app", gmcNameProvided: true })).toBe(true);
+    expect(canBeBaseline({ source: "app", gmcNameProvided: false })).toBe(true);
+    expect(canBeBaseline({ source: "web", gmcNameProvided: false })).toBe(true);
+  });
+  it("rejects a public scan where a visitor typed a Merchant Center name", () => {
+    expect(canBeBaseline({ source: "web", gmcNameProvided: true })).toBe(false);
+  });
+});
 
 describe("diffScans", () => {
   it("finds fixed, regressed and still-failing checks", () => {

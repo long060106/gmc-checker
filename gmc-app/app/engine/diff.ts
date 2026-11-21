@@ -34,6 +34,15 @@ export function diffScans(baseline: Record<string, Status>, snapshot: Record<str
  * A scan that saw nothing but the password page or an unreachable store: every check except
  * "store is public" (SITE-04) is "na". Such a scan can't be a baseline: nothing in it can change.
  */
+/**
+ * Whether a stored scan may be the baseline of a snapshot diff. In-app scans always can. A public /scan
+ * can be run by anyone for any store, so it counts only when no Merchant Center name was typed in:
+ * then its results come from the storefront alone, never from what the visitor entered.
+ */
+export function canBeBaseline(scan: { source: string; gmcNameProvided: boolean }): boolean {
+  return scan.source === "app" || !scan.gmcNameProvided;
+}
+
 export function isBlockedScan(results: Record<string, Status>): boolean {
   const others = Object.entries(results).filter(([id]) => id !== "SITE-04");
   return others.length > 0 && others.every(([, s]) => s === "na");

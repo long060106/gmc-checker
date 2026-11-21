@@ -37,7 +37,8 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   if (!profile?.shopKey) return { latest: null, askOutcome: [], rejected: null, hasGmcInfo, ...plan };
 
   const [scan, last] = await Promise.all([
-    prisma.scan.findFirst({ where: { shopKey: profile.shopKey }, orderBy: { createdAt: "desc" } }),
+    // In-app scans only: anyone can run a public /scan of this store and type any Merchant Center name.
+    prisma.scan.findFirst({ where: { shopKey: profile.shopKey, source: "app" }, orderBy: { createdAt: "desc" } }),
     prisma.reviewAttempt.findFirst({
       where: { shopKey: profile.shopKey },
       orderBy: { attemptNo: "desc" },
