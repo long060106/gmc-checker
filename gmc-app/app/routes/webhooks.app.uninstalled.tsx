@@ -12,6 +12,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   if (session) {
     await db.session.deleteMany({ where: { shop } });
   }
+  // The storefront password is only for scans; don't keep it after uninstall (shop/redact deletes the rest).
+  await db.shopProfile.updateMany({ where: { shop }, data: { storefrontPassword: null } });
 
   return new Response();
 };

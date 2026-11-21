@@ -4,7 +4,7 @@ Updated 2026-11-16 for the production app **Fixlog** (`shopify.app.production.to
 
 ## Test instructions for Shopify's reviewer (paste into the submission form)
 1. Install the app. You land on the app home ("Storefront check") inside Shopify admin, with no extra sign-in.
-2. Click **Scan my store**. If your test store has a storefront password, the scan shows **"Your store is password-protected"** and most checks as not checked. That is correct: Google can't see a password-protected store either. To see a full report, turn off the password in Online Store → Preferences, then click **Scan again**.
+2. Click **Scan my store**. Development stores are password-protected, so the first scan shows **"Your store is password-protected"** and most checks as not checked. That is correct: Google can't see a password-protected store either. To see the full report, copy the store password from **Online Store → Preferences**, paste it into **Storefront password** in that banner and click **Save and scan**. The app uses it only to open the store for scans (it can be removed from the side panel and is deleted on uninstall). "Store is public" stays flagged, because Google still can't see the store.
 3. Open **Merchant Center info**, enter any business name, phone, email and address, save, and scan again. The Identity and Contact checks now compare those values with the storefront.
 4. Open **Before you request a review**, pick an issue label, click **I'm about to request a review**. The app re-scans and lists what changed since the first scan, with a review kit you can copy or download as .txt.
 5. **Paid feature (one-time charge through Shopify Billing):** open **Reinstatement Pass** → **Get the pass for $39** → approve the charge. On a development store this is a test charge. Back in the app you see "Your pass is active until …", and scans and snapshots are no longer limited. **Request a refund of $39** on the same page ends the pass at once (7-day window, once per store); refunds are then issued manually from the Partner Dashboard.
@@ -23,7 +23,7 @@ Updated 2026-11-16 for the production app **Fixlog** (`shopify.app.production.to
 - [x] Separate production app "Fixlog" with `application_url` = Render URL, compliance webhooks, `automatically_update_urls_on_dev = false` (released as fixlog-2, 2026-11-16)
 - [x] App icon 1200×1200 uploaded (`docs/listing/icon-1200.png`, redraw with `docs/listing/make-icon.ps1`)
 - [x] Privacy policy at `https://gmc-checker-wgme.onrender.com/privacy` covers the web checker and the Shopify app
-- [ ] `SHOPIFY_API_SECRET` on Render = Fixlog's client secret (Long pastes it; see SETUP §4)
+- [x] `SHOPIFY_API_SECRET` on Render = Fixlog's client secret (Long, 2026-11-20)
 - [ ] Install Fixlog on the dev store and click through steps 1–6 above with no 404/500 (Req 2.1.1)
 - [ ] `CONTACT_EMAIL` set on Render, so the privacy page shows a real contact email
 - [ ] Public distribution chosen on the Fixlog app (Long only; can't be undone; SETUP §9.1)

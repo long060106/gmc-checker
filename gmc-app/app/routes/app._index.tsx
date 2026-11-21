@@ -1,7 +1,7 @@
 // App home: scan the merchant's own storefront against Google's published website requirements,
 // and ask about the outcome of earlier review requests.
 // Words we never use here: readiness, score, approval chance, guarantee. Google alone decides.
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import type { ActionFunctionArgs, HeadersFunction, LoaderFunctionArgs } from "react-router";
 import { useFetcher, useLoaderData } from "react-router";
 import { useAppBridge } from "@shopify/app-bridge-react";
@@ -27,7 +27,12 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     countRecentScans(session.shop),
   ]);
   const hasGmcInfo = Boolean(profile?.gmcBusinessName || profile?.gmcPhone || profile?.gmcEmail || profile?.gmcAddress);
-  const plan = { passActive: pass.active, passUntil: pass.active ? pass.expiresAt : null, scansLeft: scansLeft(recent, pass) };
+  const plan = {
+    passActive: pass.active,
+    passUntil: pass.active ? pass.expiresAt : null,
+    scansLeft: scansLeft(recent, pass),
+    hasStorefrontPassword: Boolean(profile?.storefrontPassword),
+  };
   if (!profile?.shopKey) return { latest: null, askOutcome: [], rejected: null, hasGmcInfo, ...plan };
 
   const [scan, last] = await Promise.all([
@@ -83,7 +88,8 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 type ActionResult =
   | { intent: "scan"; ok: true; findings: Finding[]; origin: string; createdAt: string }
   | { intent: "scan"; ok: false; error: string; limit?: boolean }
-  | { intent: "outcome"; ok: boolean; answer?: string };
+  | { intent: "outcome"; ok: boolean; answer?: string }
+  | { intent: "password-removed"; ok: true };
 
 export const action = async ({ request }: ActionFunctionArgs): Promise<ActionResult> => {
   const { session, admin } = await authenticate.admin(request);
@@ -102,6 +108,17 @@ export const action = async ({ request }: ActionFunctionArgs): Promise<ActionRes
       data: answer === "pending" ? { outcomeAt: new Date() } : { outcome: answer, outcomeAt: new Date() },
     });
     return { intent: "outcome", ok: true, answer };
+  }
+
+  // Save (then scan) or remove the storefront password. It is only used to open the store for scans.
+  if (form.get("intent") === "storefront-password") {
+    const value = String(form.get("storefrontPassword") ?? "").trim().slice(0, 100);
+    await prisma.shopProfile.upsert({
+      where: { shop: session.shop },
+      create: { shop: session.shop, storefrontPassword: value || null },
+      update: { storefrontPassword: value || null },
+    });
+    if (!value) return { intent: "password-removed", ok: true };
   }
 
   const [{ pass }, recent] = await Promise.all([getPass(admin, session.shop), countRecentScans(session.shop)]);
@@ -190,14 +207,19 @@ function LatestStatuses({ results }: { results: Record<string, Status> }) {
 }
 
 export default function Index() {
-  const { latest, askOutcome, rejected, hasGmcInfo, passActive, passUntil, scansLeft: left } =
+  const { latest, askOutcome, rejected, hasGmcInfo, passActive, passUntil, scansLeft: left, hasStorefrontPassword } =
     useLoaderData<typeof loader>();
+  const [storefrontPassword, setStorefrontPassword] = useState("");
   const scanFetcher = useFetcher<typeof action>();
   const outcomeFetcher = useFetcher<typeof action>();
   const shopify = useAppBridge();
 
   const scanning = scanFetcher.state !== "idle";
   const result = scanFetcher.data?.intent === "scan" ? scanFetcher.data : undefined;
+
+  useEffect(() => {
+    if (scanFetcher.data?.intent === "password-removed") shopify.toast.show("Storefront password removed");
+  }, [scanFetcher.data, shopify]);
 
   useEffect(() => {
     const d = outcomeFetcher.data;
@@ -207,11 +229,15 @@ export default function Index() {
   }, [outcomeFetcher.data, shopify]);
 
   const runScan = () => scanFetcher.submit({ intent: "scan" }, { method: "POST" });
+  const savePasswordAndScan = () =>
+    scanFetcher.submit({ intent: "storefront-password", storefrontPassword }, { method: "POST" });
+  const removePassword = () => scanFetcher.submit({ intent: "storefront-password", storefrontPassword: "" }, { method: "POST" });
   const answer = (attemptId: string, value: string) =>
     outcomeFetcher.submit({ intent: "outcome", attemptId, answer: value }, { method: "POST" });
 
   const findings = result?.ok ? result.findings : null;
-  const passwordProtected = findings?.some((f) => f.checkId === "SITE-04" && f.status === "fail");
+  const shown = findings ?? latest?.findings ?? null;
+  const passwordProtected = shown?.some((f) => f.checkId === "SITE-04" && f.status === "fail" && /password/i.test(f.evidence));
 
   return (
     <s-page heading="Storefront check">
@@ -285,12 +311,30 @@ export default function Index() {
         </s-banner>
       ) : null}
 
-      {passwordProtected ? (
+      {passwordProtected && !hasStorefrontPassword ? (
         <s-banner tone="warning" heading="Your store is password-protected">
-          <s-paragraph>
-            Google can't see a password-protected store, and neither can this scan. Remove the password in Online Store →
-            Preferences, then scan again.
-          </s-paragraph>
+          <s-stack direction="block" gap="base">
+            <s-paragraph>
+              Google can't see a password-protected store. Remove the password in Online Store → Preferences when you
+              launch. Until then, save your storefront password here and the scan will check what Google will see once
+              the password is gone. It is only used to open your store for scans, and deleted when you uninstall.
+            </s-paragraph>
+            <s-text-field
+              label="Storefront password"
+              details="Online Store → Preferences → Password"
+              value={storefrontPassword}
+              onInput={(e) => setStorefrontPassword(e.currentTarget.value)}
+              onChange={(e) => setStorefrontPassword(e.currentTarget.value)}
+            ></s-text-field>
+            <s-button
+              variant="primary"
+              onClick={savePasswordAndScan}
+              {...(scanning ? { loading: true } : {})}
+              {...(!storefrontPassword.trim() ? { disabled: true } : {})}
+            >
+              Save and scan
+            </s-button>
+          </s-stack>
         </s-banner>
       ) : null}
 
@@ -328,6 +372,18 @@ export default function Index() {
           </s-button>
         </s-section>
       )}
+
+      {hasStorefrontPassword ? (
+        <s-section slot="aside" heading="Storefront password">
+          <s-paragraph>
+            Saved. Scans use it to open your password-protected store. Google still can't see the store until you remove the
+            password.
+          </s-paragraph>
+          <s-button variant="tertiary" onClick={removePassword}>
+            Remove password
+          </s-button>
+        </s-section>
+      ) : null}
 
       <s-section slot="aside" heading="Before you request a review">
         <s-paragraph>

@@ -22,6 +22,9 @@ export interface StoreSnapshot {
   products?: Page[]; // up to 3 sampled product pages
   links?: LinkStatus[]; // internal links found on the home page, with their status
   origin?: string; // e.g. "https://example.com"
+  // True when the store is password-protected and the app crawled it with the storefront password the
+  // merchant saved. Google still can't see such a store; the other checks show what it will see at launch.
+  passwordProtected?: boolean;
 }
 
 // Facts the merchant types in (from their Merchant Center account). All optional.

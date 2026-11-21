@@ -116,6 +116,9 @@ model ShopProfile {
   gmcPhone                String?
   gmcEmail                String?
   gmcAddress              String?
+  // The storefront password (Online Store → Preferences), only if the merchant saves it, so scans can
+  // check a store that isn't launched yet. Cleared on uninstall; the row is deleted on shop/redact.
+  storefrontPassword      String?
   outcomeSharingConsentAt DateTime?
   updatedAt               DateTime  @updatedAt
 }

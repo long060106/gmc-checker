@@ -7,6 +7,7 @@ import { checkBrokenLinks, checkPlaceholders, checkPublicAccess, checkSocialLink
 import { checkAvailabilityMatch, checkPriceInHtml, checkStructuredPrice, priceShown } from "./pricing";
 import { checkFakeEndorsement, checkUnreliableClaims } from "./claims";
 import { runAll, CHECK_INFO, CHECKS } from "../run";
+import { passwordFormFields } from "../crawl.server";
 
 const st = (f: { status: string }) => f.status;
 
@@ -116,6 +117,12 @@ describe("site", () => {
     expect(st(checkPublicAccess(snap({ pages: { home } })))).toBe("fail");
     expect(st(checkPublicAccess(snap()))).toBe("pass");
   });
+
+  it("SITE-04 still fails when the scan used the storefront password", () => {
+    const f = checkPublicAccess({ ...snap(), passwordProtected: true });
+    expect(f.status).toBe("fail");
+    expect(f.evidence).toMatch(/password-protected/);
+  });
 });
 
 describe("pricing", () => {
@@ -171,4 +178,14 @@ describe("runAll", () => {
   it("survives an empty snapshot", () => {
     expect(() => runAll({ pages: {} })).not.toThrow();
   });
+});
+
+describe("storefront password form", () => {
+  it("reads the hidden fields of the password form only", () => {
+    const html = `<form action="/search"><input type="hidden" name="q" value="x"></form>
+      <form action="/password" accept-charset="UTF-8" method="post"><input type="hidden" name="authenticity_token" value="abc==" />
+      <input type="password" id="password" name="password"></form>`;
+    expect(passwordFormFields(html)).toEqual({ authenticity_token: "abc==" });
+  });
+  it("returns null when there is no password form", () => expect(passwordFormFields("<form action='/cart'></form>")).toBeNull());
 });

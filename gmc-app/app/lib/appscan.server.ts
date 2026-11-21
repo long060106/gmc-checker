@@ -26,7 +26,10 @@ export async function profileInput(shop: string): Promise<CheckInput> {
 /** Never throws: every failure becomes a friendly message (App Store req 2.1.1 — no 500s). */
 export async function scanShop(shopDomain: string, input: CheckInput): Promise<ScanShopResult> {
   try {
-    const snapshot = await crawlStore(`https://${shopDomain}`);
+    const profile = await prisma.shopProfile.findUnique({ where: { shop: shopDomain }, select: { storefrontPassword: true } });
+    const snapshot = await crawlStore(`https://${shopDomain}`, {
+      storefrontPassword: profile?.storefrontPassword ?? undefined,
+    });
     const findings = runAll(snapshot, input);
     const origin = snapshot.origin ?? `https://${shopDomain}`;
     const key = shopKey(new URL(origin).hostname);

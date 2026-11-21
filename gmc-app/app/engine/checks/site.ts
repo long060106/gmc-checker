@@ -93,6 +93,14 @@ export const checkPublicAccess: CheckFn = (s) => {
   const base = { checkId: "SITE-04", googleRef: REF.editorial, shopifyFix: FIX.preferences };
   const home = s.pages.home;
   if (!home || home.status === 0) return { ...base, status: "fail", evidence: "The store could not be reached" };
+  if (s.passwordProtected) {
+    return {
+      ...base,
+      status: "fail",
+      evidence:
+        "The store is password-protected, so Google can't see it. The other checks used your storefront password, so they show what Google will see once you remove it",
+    };
+  }
   const path = pathOf(home);
   if (path.startsWith("/password")) {
     return { ...base, status: "fail", evidence: "The store is password-protected, so Google can't see it" };

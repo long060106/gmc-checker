@@ -20,7 +20,7 @@ export default function Privacy() {
   return (
     <main style={wrap}>
       <h1>Privacy policy</h1>
-      <p>Last updated: November 16, 2026.</p>
+      <p>Last updated: November 21, 2026.</p>
       <p>
         This policy covers Fixlog: the free storefront check at <Link to="/scan">/scan</Link> with its waitlist, and
         the Fixlog app for Shopify. We collect as little as we can.
@@ -62,6 +62,11 @@ export default function Privacy() {
         <li>
           <strong>The Merchant Center details you type in</strong> (business name, phone, email, address), if you choose
           to. They are only used to compare with what your storefront shows.
+        </li>
+        <li>
+          <strong>Your storefront password, only if you save it,</strong> so the scan can open a store that isn&apos;t
+          launched yet. It is only used to open your store for scans. You can remove it in the app at any time, and it is
+          deleted when you uninstall.
         </li>
         <li>
           <strong>Scan results and findings,</strong> including short excerpts of your public pages that a finding

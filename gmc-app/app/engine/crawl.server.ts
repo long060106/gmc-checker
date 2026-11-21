@@ -98,7 +98,22 @@ async function readCapped(res: Response): Promise<string> {
   return Buffer.concat(chunks).toString("utf8");
 }
 
-async function fetchOnce(start: string, budget: Budget, readBody: boolean): Promise<Page> {
+/** Cookies for one scan only (used only after unlocking a password-protected store). Never stored. */
+class CookieJar {
+  private jar = new Map<string, string>();
+  absorb(res: Response) {
+    for (const c of res.headers.getSetCookie()) {
+      const [pair] = c.split(";");
+      const i = pair.indexOf("=");
+      if (i > 0) this.jar.set(pair.slice(0, i).trim(), pair.slice(i + 1).trim());
+    }
+  }
+  header(): string {
+    return [...this.jar].map(([k, v]) => `${k}=${v}`).join("; ");
+  }
+}
+
+async function fetchOnce(start: string, budget: Budget, readBody: boolean, jar?: CookieJar): Promise<Page> {
   let url = new URL(start);
   for (let hop = 0; hop <= MAX_REDIRECTS; hop++) {
     const failed: Page = { url: start, status: 0, html: "", finalUrl: url.toString() };
@@ -114,8 +129,13 @@ async function fetchOnce(start: string, budget: Budget, readBody: boolean): Prom
       const res = await fetch(url, {
         redirect: "manual",
         signal: ctrl.signal,
-        headers: { "user-agent": USER_AGENT, accept: "text/html,application/json;q=0.9,*/*;q=0.5" },
+        headers: {
+          "user-agent": USER_AGENT,
+          accept: "text/html,application/json;q=0.9,*/*;q=0.5",
+          ...(jar ? { cookie: jar.header() } : {}),
+        },
       });
+      jar?.absorb(res);
       const location = res.headers.get("location");
       if (res.status >= 300 && res.status < 400 && location) {
         await res.body?.cancel();
@@ -153,27 +173,93 @@ function looksLikeShopify(p: Page): boolean {
 
 const stripHash = (u: string) => u.split("#")[0];
 
-export async function crawlStore(input: string): Promise<StoreSnapshot> {
+/** Hidden inputs of the storefront password form (e.g. authenticity_token, form_type), by name. */
+export function passwordFormFields(html: string): Record<string, string> | null {
+  const form = [...html.matchAll(/<form\b[^>]*>[\s\S]*?<\/form>/gi)]
+    .map((m) => m[0])
+    .find((f) => /action=["'][^"']*\/password["']/i.test(f) && /name=["']password["']/i.test(f));
+  if (!form) return null;
+  const fields: Record<string, string> = {};
+  for (const m of form.matchAll(/<input\b[^>]*>/gi)) {
+    const tag = m[0];
+    if (!/type=["']hidden["']/i.test(tag)) continue;
+    const name = tag.match(/name=["']([^"']+)["']/i)?.[1];
+    if (name) fields[name] = tag.match(/value=["']([^"']*)["']/i)?.[1] ?? "";
+  }
+  return fields;
+}
+
+/** Submits the storefront password like a visitor would. True when the home page then opens. */
+async function unlockStorefront(origin: string, password: string, budget: Budget, jar: CookieJar): Promise<boolean> {
+  const form = await fetchOnce(`${origin}/password`, budget, true, jar);
+  const fields = passwordFormFields(form.html);
+  if (!fields || !budget.take()) return false;
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), TIMEOUT_MS);
+  try {
+    const res = await fetch(`${origin}/password`, {
+      method: "POST",
+      redirect: "manual",
+      signal: ctrl.signal,
+      headers: {
+        "user-agent": USER_AGENT,
+        "content-type": "application/x-www-form-urlencoded",
+        cookie: jar.header(),
+      },
+      body: new URLSearchParams({ ...fields, password }),
+    });
+    jar.absorb(res);
+    await res.body?.cancel();
+  } catch {
+    return false;
+  } finally {
+    clearTimeout(timer);
+  }
+  const home = await fetchOnce(`${origin}/`, budget, false, jar);
+  return home.status > 0 && !new URL(home.finalUrl ?? home.url).pathname.startsWith("/password");
+}
+
+export interface CrawlOptions {
+  /** In-app only: the merchant's storefront password, so a store that isn't launched yet can be checked. */
+  storefrontPassword?: string;
+}
+
+export async function crawlStore(input: string, opts: CrawlOptions = {}): Promise<StoreSnapshot> {
   const start = normalizeStoreUrl(input);
   await assertPublicHttps(start); // throws a friendly CrawlError for the user
   const budget = new Budget();
+  let jar: CookieJar | undefined;
   const cache = new Map<string, Promise<Page>>();
   const get = (u: string, readBody = true) => {
     const key = stripHash(u);
-    if (!cache.has(key)) cache.set(key, fetchOnce(key, budget, readBody));
+    if (!cache.has(key)) cache.set(key, fetchOnce(key, budget, readBody, jar));
     return cache.get(key)!;
   };
 
-  const home = await get(`${start.origin}/`);
+  let home = await get(`${start.origin}/`);
   if (home.status === 0) throw new CrawlError("Could not reach the store. Is the address right?");
   if (!looksLikeShopify(home)) throw new CrawlError("This checker only supports Shopify stores for now.");
 
-  const finalHome = new URL(home.finalUrl ?? home.url);
+  let finalHome = new URL(home.finalUrl ?? home.url);
   const origin = finalHome.origin; // e.g. myshop.myshopify.com may redirect to the custom domain
-  const pages: Record<string, Page | undefined> = { home };
+  let passwordProtected = false;
   if (finalHome.pathname.startsWith("/password")) {
-    return { pages, products: [], links: [], origin }; // nothing else is visible to Google either
+    if (!opts.storefrontPassword) {
+      return { pages: { home }, products: [], links: [], origin }; // nothing else is visible to Google either
+    }
+    jar = new CookieJar();
+    budget.left += 4; // the unlock requests don't count against the pages we check
+    if (!(await unlockStorefront(origin, opts.storefrontPassword, budget, jar))) {
+      throw new CrawlError(
+        "Your saved storefront password didn't open the store. Copy it again from Online Store → Preferences.",
+      );
+    }
+    cache.clear();
+    home = await get(`${origin}/`);
+    finalHome = new URL(home.finalUrl ?? home.url);
+    passwordProtected = true;
   }
+  const pages: Record<string, Page | undefined> = { home };
 
   const internal = extractLinks(home.html, finalHome.toString()).filter((l) => {
     const u = new URL(l.href);
@@ -218,5 +304,5 @@ export async function crawlStore(input: string): Promise<StoreSnapshot> {
     .filter((p) => p.status !== 0) // 0 = not checked (budget) or unreachable — unknown, not "broken"
     .map((p) => ({ url: p.url, status: p.status, finalUrl: p.finalUrl ?? p.url }));
 
-  return { pages, products, links, origin };
+  return { pages, products, links, origin, passwordProtected };
 }
