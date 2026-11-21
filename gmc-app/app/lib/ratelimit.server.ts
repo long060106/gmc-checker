@@ -27,6 +27,8 @@ type Env = Record<string, string | undefined>;
  * - Render (env RENDER is set) sits behind Cloudflare, which replaces CF-Connecting-IP with the
  *   address that connected to it. Render's proxy keeps a client-sent X-Forwarded-For and only
  *   appends to it, so X-Forwarded-For is never trusted here.
+ *   Checked on the live Render service on 2026-11-21: a client-sent CF-Connecting-IP is refused by
+ *   Cloudflare (error 1000), and a client-sent Fly-Client-IP or X-Forwarded-For value reaches the app.
  * - Fly.io (env FLY_APP_NAME is set) replaces Fly-Client-IP.
  * Anywhere else (local dev) no header can be trusted, so everyone shares one bucket.
  */
