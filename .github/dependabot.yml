@@ -1,0 +1,18 @@
+# Dependabot opens pull requests to update dependencies. CI (.github/workflows/ci.yml) runs the
+# typecheck and tests on each PR. Nothing merges or deploys until you merge it into main.
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/gmc-app"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    groups:
+      # Minor and patch updates arrive as one PR a week; major updates get their own PR.
+      minor-and-patch:
+        update-types: ["minor", "patch"]
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
