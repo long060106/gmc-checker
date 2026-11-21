@@ -39,6 +39,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     scansLeft: scansLeft(recent, pass),
     returned,
     canRefund,
+    refundUsed: priorRefunds > 0, // the 7-day refund is once per store
     refundUntil: canRefund && pass.active ? new Date(Date.parse(pass.purchasedAt) + REFUND_DAYS * DAY).toISOString() : null,
   };
 };
@@ -100,7 +101,7 @@ export const action = async ({ request }: ActionFunctionArgs): Promise<ActionRes
 const fmtDate = (iso: string) => new Date(iso).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
 
 export default function Pass() {
-  const { pass, testStore, scansLeft: left, returned, canRefund, refundUntil } = useLoaderData<typeof loader>();
+  const { pass, testStore, scansLeft: left, returned, canRefund, refundUsed, refundUntil } = useLoaderData<typeof loader>();
   const result = useActionData<typeof action>();
   const nav = useNavigation();
   const busy = nav.state !== "idle";
@@ -198,7 +199,9 @@ export default function Pass() {
           {!pass.active ? (
             <s-paragraph>
               <s-text color="subdued">
-                {`${REFUND_DAYS}-day refund: if the pass isn't useful, ask for your money back on this page within ${REFUND_DAYS} days. One click, no questions needed.`}
+                {refundUsed
+                  ? "This store has already used its refund, so a new pass can't be refunded."
+                  : `${REFUND_DAYS}-day refund: if the pass isn't useful, ask for your money back on this page within ${REFUND_DAYS} days. One click, no questions needed.`}
               </s-text>
             </s-paragraph>
           ) : null}

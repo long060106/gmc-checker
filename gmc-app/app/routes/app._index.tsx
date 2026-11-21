@@ -21,7 +21,7 @@ const SNOOZE_DAYS = 7; // "Still waiting" hides the question for a week
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { session, admin } = await authenticate.admin(request);
-  const [profile, { pass }, recent] = await Promise.all([
+  const [profile, { pass, priorRefunds }, recent] = await Promise.all([
     prisma.shopProfile.findUnique({ where: { shop: session.shop } }),
     getPass(admin, session.shop),
     countRecentScans(session.shop),
@@ -32,6 +32,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     passUntil: pass.active ? pass.expiresAt : null,
     scansLeft: scansLeft(recent, pass),
     hasStorefrontPassword: Boolean(profile?.storefrontPassword),
+    refundNote: priorRefunds > 0 ? "" : `, ${REFUND_DAYS}-day refund`, // the refund is once per store
   };
   if (!profile?.shopKey) return { latest: null, askOutcome: [], rejected: null, hasGmcInfo, ...plan };
 
@@ -207,7 +208,7 @@ function LatestStatuses({ results }: { results: Record<string, Status> }) {
 }
 
 export default function Index() {
-  const { latest, askOutcome, rejected, hasGmcInfo, passActive, passUntil, scansLeft: left, hasStorefrontPassword } =
+  const { latest, askOutcome, rejected, hasGmcInfo, passActive, passUntil, scansLeft: left, hasStorefrontPassword, refundNote } =
     useLoaderData<typeof loader>();
   const [storefrontPassword, setStorefrontPassword] = useState("");
   const scanFetcher = useFetcher<typeof action>();
@@ -277,7 +278,7 @@ export default function Index() {
               <s-button href={`/app/kit/${rejected.attemptNo}`}>Open kit #{rejected.attemptNo}</s-button>
               {rejected.nextNeedsPass ? (
                 <s-button variant="primary" href="/app/pass">
-                  {`Get the pass for request #${rejected.attemptNo + 1} ($${PASS_PRICE_USD}, ${REFUND_DAYS}-day refund)`}
+                  {`Get the pass for request #${rejected.attemptNo + 1} ($${PASS_PRICE_USD}${refundNote})`}
                 </s-button>
               ) : (
                 <s-button variant="primary" href="/app/snapshot">
@@ -400,7 +401,7 @@ export default function Index() {
             : `${left ?? 0} of ${FREE_SCANS} free scans left in the last ${FREE_WINDOW_DAYS} days.`}
         </s-paragraph>
         {!passActive ? (
-          <s-link href="/app/pass">{`Unlimited scans for 60 days, $${PASS_PRICE_USD} once, ${REFUND_DAYS}-day refund`}</s-link>
+          <s-link href="/app/pass">{`Unlimited scans for 60 days, $${PASS_PRICE_USD} once${refundNote}`}</s-link>
         ) : null}
       </s-section>
 

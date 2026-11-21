@@ -24,11 +24,11 @@ Updated 2026-11-16 for the production app **Fixlog** (`shopify.app.production.to
 - [x] App icon 1200×1200 uploaded (`docs/listing/icon-1200.png`, redraw with `docs/listing/make-icon.ps1`)
 - [x] Privacy policy at `https://gmc-checker-wgme.onrender.com/privacy` covers the web checker and the Shopify app
 - [x] `SHOPIFY_API_SECRET` on Render = Fixlog's client secret (Long, 2026-11-20)
-- [ ] Install Fixlog on the dev store and click through steps 1–6 above with no 404/500 (Req 2.1.1)
+- [x] Install Fixlog on the dev store and click through steps 1–6 above with no 404/500 (Req 2.1.1): all passed 2026-11-21, including the Pass purchase (test charge) and the refund
   - 2026-11-21: installed on long-gmc-test; steps 1, 2 (password banner), 3 and 6 OK. Step 2 full report waits for Long to save the storefront password in the app. Step 5 fails until Public distribution is chosen: Shopify answers "Apps without a public distribution cannot use the Billing API" (the app shows "Purchase not started", nothing charged). After Public distribution was chosen, step 5 reaches Shopify's "Approve charge" page ("You will not be billed for this test charge"); Long approves it himself (terms + possibly a payment method). 2026-11-21 afternoon: storefront password saved, full report OK (10 of 19 passed); step 4 snapshot + kit OK after adding an About page; no approved Pass purchase reached the server yet.
 - [x] `CONTACT_EMAIL` = fixlog.support@proton.me on Render, and Fixlog's API contact email changed to it (2026-11-21)
 - [x] Public distribution chosen on the Fixlog app (Long, 2026-11-21)
 - [ ] Emergency developer contact set (email + phone) in the Partner/Dev Dashboard (Long)
-- [ ] 3–6 screenshots, 1600×900, of the Fixlog app (not the dev app, whose admin title is "Long Nguyen"): 4 done in `docs/listing/screenshots/` (2026-11-21); the report summary waits for an active Pass
+- [x] 3–6 screenshots, 1600×900, of the Fixlog app (not the dev app, whose admin title is "Long Nguyen"): 5 done in `docs/listing/screenshots/` (2026-11-21)
 - [ ] Shopify "AI self-review" run on the submission page, issues fixed
 - [ ] Listing text checked against the "Never write" list in `docs/listing-draft.md`
