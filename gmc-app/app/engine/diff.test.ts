@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { diffScans } from "./diff";
+import { diffScans, isBlockedScan } from "./diff";
 
 describe("diffScans", () => {
   it("finds fixed, regressed and still-failing checks", () => {
@@ -29,4 +29,11 @@ describe("diffScans", () => {
     const s = { "RET-01": "pass" as const, "SHP-01": "pass" as const };
     expect(diffScans(s, s)).toEqual({ fixed: [], regressed: [], stillFailing: [] });
   });
+});
+
+describe("isBlockedScan", () => {
+  it("is true when only SITE-04 was checked", () =>
+    expect(isBlockedScan({ "SITE-04": "fail", "CON-01": "na", "RET-01": "na" })).toBe(true));
+  it("is false once any other check ran", () =>
+    expect(isBlockedScan({ "SITE-04": "fail", "CON-01": "pass", "RET-01": "na" })).toBe(false));
 });

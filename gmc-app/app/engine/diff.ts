@@ -29,3 +29,12 @@ export function diffScans(baseline: Record<string, Status>, snapshot: Record<str
   }
   return { fixed, regressed, stillFailing };
 }
+
+/**
+ * A scan that saw nothing but the password page or an unreachable store: every check except
+ * "store is public" (SITE-04) is "na". Such a scan can't be a baseline: nothing in it can change.
+ */
+export function isBlockedScan(results: Record<string, Status>): boolean {
+  const others = Object.entries(results).filter(([id]) => id !== "SITE-04");
+  return others.length > 0 && others.every(([, s]) => s === "na");
+}

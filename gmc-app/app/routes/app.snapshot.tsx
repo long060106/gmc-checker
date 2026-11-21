@@ -12,7 +12,7 @@ import prisma from "../db.server";
 import { parseResults, profileInput, scanShop } from "../lib/appscan.server";
 import { getPass } from "../lib/pass.server";
 import { FREE_ATTEMPTS, snapshotAllowed } from "../lib/pass";
-import { diffScans } from "../engine/diff";
+import { diffScans, isBlockedScan } from "../engine/diff";
 import { CHECK_INFO } from "../engine/run";
 import { LABELS } from "../lib/labels";
 
@@ -92,9 +92,17 @@ export const action = async ({ request }: ActionFunctionArgs): Promise<ActionRes
 
   // 2. Baseline = the previous attempt's snapshot, else the earliest scan of this store (web or app).
   const previous = await prisma.reviewAttempt.findFirst({ where: { shopKey: res.shopKey }, orderBy: { attemptNo: "desc" } });
+  //    Scans that only saw the password page (or nothing) are skipped: nothing in them can change.
+  const earlier = previous?.snapshotScanId
+    ? null
+    : await prisma.scan.findMany({
+        where: { shopKey: res.shopKey, id: { not: snapshot.id } },
+        orderBy: { createdAt: "asc" },
+        take: 50,
+      });
   const baseline =
     (previous?.snapshotScanId ? await prisma.scan.findUnique({ where: { id: previous.snapshotScanId } }) : null) ??
-    (await prisma.scan.findFirst({ where: { shopKey: res.shopKey, id: { not: snapshot.id } }, orderBy: { createdAt: "asc" } })) ??
+    earlier?.find((s) => !isBlockedScan(parseResults(s))) ??
     snapshot;
   const firstScan = baseline.id === snapshot.id;
 
