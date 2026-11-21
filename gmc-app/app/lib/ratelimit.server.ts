@@ -19,11 +19,20 @@ export function rateLimit(key: string, max = 5, windowMs = 10 * 60_000): { ok: b
   return { ok: true, retryAfterSec: 0 };
 }
 
-/** Best-effort client IP. Fly.io sets fly-client-ip; most proxies set x-forwarded-for. */
-export function clientIp(request: Request): string {
-  const fly = request.headers.get("fly-client-ip");
-  if (fly) return fly.trim();
-  const xff = request.headers.get("x-forwarded-for");
-  if (xff) return xff.split(",")[0].trim();
-  return request.headers.get("x-real-ip")?.trim() || "unknown";
+type Env = Record<string, string | undefined>;
+
+/**
+ * The visitor's IP, read only from a header that the hosting proxy sets itself. Otherwise a visitor
+ * could send a new made-up IP with every request and never hit the limit.
+ * - Render (env RENDER is set) sits behind Cloudflare, which replaces CF-Connecting-IP with the
+ *   address that connected to it. Render's proxy keeps a client-sent X-Forwarded-For and only
+ *   appends to it, so X-Forwarded-For is never trusted here.
+ * - Fly.io (env FLY_APP_NAME is set) replaces Fly-Client-IP.
+ * Anywhere else (local dev) no header can be trusted, so everyone shares one bucket.
+ */
+export function clientIp(request: Request, env: Env = process.env): string {
+  const header = (name: string) => request.headers.get(name)?.trim() || null;
+  if (env.FLY_APP_NAME) return header("fly-client-ip") ?? "unknown";
+  if (env.RENDER) return header("cf-connecting-ip") ?? "unknown";
+  return "local";
 }
