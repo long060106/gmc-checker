@@ -11,13 +11,10 @@ Updated 2026-11-16 for the production app **Fixlog** (`shopify.app.production.to
 6. Free plan limits, so you can see the paywall: 3 scans per 30 days and the first snapshot.
 7. The app requests no access scopes and reads only the public storefront. No customer, order or product data is accessed or stored. Mandatory compliance webhooks are handled at `/webhooks/compliance`; `shop/redact` deletes all of the shop's data.
 
-## Screencast script (English, about 2 minutes)
-1. (0:00) Install from the listing → app home opens.
-2. (0:15) Click "Scan my store" → report appears; open one finding to show the evidence, the Google rule link, and where to fix it.
-3. (0:40) Merchant Center info → fill 4 fields → save → scan again → Identity/Contact results change.
-4. (1:05) Fix one issue in the store (e.g. add a Contact page), go to "Before you request a review" → snapshot → the fixed check appears under "Changes made since …"; show the review kit.
-5. (1:30) Reinstatement Pass → buy with a test charge → "Your pass is active until …".
-6. (1:50) Show the privacy policy link and uninstall.
+Test credentials: none needed. The app has no separate login; it opens inside the Shopify admin after install.
+
+## Screencast script
+Moved to `docs/submission-guide.md`, part C (11 shots with English narration, recorded on a fresh dev store so the free plan → paywall → Pass flow fits exactly 3 scans and 1 snapshot).
 
 ## Pre-submission checklist
 - [x] Separate production app "Fixlog" with `application_url` = Render URL, compliance webhooks, `automatically_update_urls_on_dev = false` (released as fixlog-2, 2026-11-16)
@@ -28,7 +25,9 @@ Updated 2026-11-16 for the production app **Fixlog** (`shopify.app.production.to
   - 2026-11-21: installed on long-gmc-test; steps 1, 2 (password banner), 3 and 6 OK. Step 2 full report waits for Long to save the storefront password in the app. Step 5 fails until Public distribution is chosen: Shopify answers "Apps without a public distribution cannot use the Billing API" (the app shows "Purchase not started", nothing charged). After Public distribution was chosen, step 5 reaches Shopify's "Approve charge" page ("You will not be billed for this test charge"); Long approves it himself (terms + possibly a payment method). 2026-11-21 afternoon: storefront password saved, full report OK (10 of 19 passed); step 4 snapshot + kit OK after adding an About page; no approved Pass purchase reached the server yet.
 - [x] `CONTACT_EMAIL` = fixlog.support@proton.me on Render, and Fixlog's API contact email changed to it (2026-11-21)
 - [x] Public distribution chosen on the Fixlog app (Long, 2026-11-21)
-- [ ] Emergency developer contact set (email + phone) in the Partner/Dev Dashboard (Long)
+- [ ] Emergency developer contact set (email + phone): Dev Dashboard → Organization settings → Organization (Long)
+- [ ] Screencast recorded on a fresh dev store and its link pasted into the form (Long; `docs/submission-guide.md` part C)
+- [x] App card subtitle and feature image ready (`docs/listing-draft.md`, `docs/listing/feature-image.png`, 2026-11-21)
 - [x] 3–6 screenshots, 1600×900, of the Fixlog app (not the dev app, whose admin title is "Long Nguyen"): 5 done in `docs/listing/screenshots/` (2026-11-21)
 - [ ] Shopify "AI self-review" run on the submission page, issues fixed
 - [ ] Listing text checked against the "Never write" list in `docs/listing-draft.md`

@@ -13,6 +13,14 @@ Rules this draft follows (App Store requirements, read 2026-11-09): name ≤ 30 
 
 New Merchant Center apps seen in the same searches (2026-11-16), not yet profiled: "Preflight Merchant Center Scan", "GMC Fix Map", "FeedFix: Merchant Center Fix".
 
+## App card subtitle (benefit, no keywords or stats)
+> Know what to fix and what changed before you request a review
+
+61 characters. Backup: "Check your store against Google rules before a GMC review" (57).
+
+## Feature media
+`docs/listing/feature-image.png` (1600×900, drawn by `docs/listing/make-feature-image.ps1`): headline "Show exactly what you changed" plus the pre-review snapshot screenshot. Alt text: "Fixlog snapshot of the changes made before a Merchant Center review request".
+
 ## App introduction (≤ 100)
 > Check your storefront against Google's published Merchant Center rules and track what you fix.
 
