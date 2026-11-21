@@ -36,11 +36,13 @@ merchant center suspended · misrepresentation · website needs improvement · g
 - In the Partner Dashboard pricing form, list both. The app code is in `gmc-app/app/lib/pass.ts` (limits) and `app/routes/app.pass.tsx` (purchase page).
 
 ## Screenshots (3–6, 1600×900, no PII, no prices, no outcome promises)
-1. Report grouped by Identity / Contact / Policies / Site / Pricing / Claims.
-2. One expanded finding: evidence + "Google's rule" link + "Where to fix".
-3. Merchant Center info form.
-4. Pre-review snapshot with "Changes made since …" list.
-5. Review-attempt history table.
+Files in `docs/listing/screenshots/` (taken 2026-11-21 on long-gmc-test, Fixlog app; cropped with `docs/listing/crop-screenshot.ps1`):
+1. Report summary + Site group: **todo, after the Pass is active** (the free-plan side panel shows the $39 price).
+2. `2-policy-findings.png`: findings with evidence, "Where to fix" and "Google's rule".
+3. `3-merchant-center-info.png`: Merchant Center info form (made-up test data).
+4. `4-pre-review-snapshot.png`: "Changes made since …" list after adding an About page.
+5. `5-review-kit.png`: review request kit with Copy / Download .txt.
+Avoid the "Support email uses your store's domain" finding: on long-gmc-test it shows Long's personal Gmail.
 
 ## Never write (anywhere: listing, app, ads, forum)
 "get reinstated", "fix your suspension", "approval chance", "readiness score", "guaranteed", "Google-approved", "official".
