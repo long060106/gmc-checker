@@ -6,7 +6,11 @@
 import type { LoaderFunctionArgs } from "react-router";
 import { redirect } from "react-router";
 
+import { legacyHostRedirect } from "../../lib/site.server";
+
 export const loader = async ({ request }: LoaderFunctionArgs) => {
+  const moved = legacyHostRedirect(request);
+  if (moved) throw moved;
   const url = new URL(request.url);
   if (url.searchParams.get("shop")) {
     throw redirect(`/app?${url.searchParams.toString()}`);

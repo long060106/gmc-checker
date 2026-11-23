@@ -7,7 +7,7 @@ import type { LoaderFunctionArgs, MetaFunction } from "react-router";
 import { Link, useLoaderData } from "react-router";
 
 import { FIX, REF } from "../engine/refs";
-import { siteOrigin } from "../lib/site.server";
+import { legacyHostRedirect, siteOrigin } from "../lib/site.server";
 import styles from "./scan/styles.module.css";
 
 const TITLE = "Shopify GMC misrepresentation: what Google's help pages list";
@@ -15,9 +15,11 @@ const DESCRIPTION =
   "A checklist for Shopify stores from Google Merchant Center's own help pages, with the Shopify admin path for each fix and what to know before you request a review.";
 const CHECKED_ON = "2026-11-23";
 
-export const loader = ({ request }: LoaderFunctionArgs) => ({
-  canonical: `${siteOrigin(request)}/guides/gmc-misrepresentation-shopify`,
-});
+export const loader = ({ request }: LoaderFunctionArgs) => {
+  const moved = legacyHostRedirect(request);
+  if (moved) throw moved;
+  return { canonical: `${siteOrigin(request)}/guides/gmc-misrepresentation-shopify` };
+};
 
 export const meta: MetaFunction<typeof loader> = ({ loaderData }) => [
   { title: `${TITLE} – Fixlog` },

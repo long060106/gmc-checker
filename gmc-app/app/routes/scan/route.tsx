@@ -1,6 +1,6 @@
 // Public web checker at /scan. No Shopify auth: anyone can scan a public Shopify storefront.
 // Never throws to the user: every failure becomes a friendly message (App Store req 2.1.1 mindset).
-import type { ActionFunctionArgs, LoaderFunctionArgs, MetaFunction } from "react-router";
+import type { ActionFunctionArgs, LoaderFunctionArgs, MetaFunction, ShouldRevalidateFunction } from "react-router";
 import { useState } from "react";
 import { Form, Link, data, useActionData, useFetcher, useLoaderData, useNavigation, useSearchParams } from "react-router";
 import { randomBytes } from "node:crypto";
@@ -9,7 +9,7 @@ import prisma from "../../db.server";
 import { crawlStore, CrawlError } from "../../engine/crawl.server";
 import { CHECK_INFO, CHECKS, ENGINE_VERSION, runAll } from "../../engine/run";
 import { REF } from "../../engine/refs";
-import { siteOrigin } from "../../lib/site.server";
+import { legacyHostRedirect, siteOrigin } from "../../lib/site.server";
 import type { Finding, Status } from "../../engine/types";
 import { shopKey } from "../../lib/shopkey.server";
 import { clientIp, rateLimit } from "../../lib/ratelimit.server";
@@ -21,7 +21,16 @@ const TITLE = "Shopify GMC misrepresentation check (free) – Fixlog";
 const DESCRIPTION =
   "Free check of a Shopify store against Google Merchant Center's website rules. Every finding links to Google's rule and says where to fix it.";
 
-export const loader = ({ request }: LoaderFunctionArgs) => ({ canonical: `${siteOrigin(request)}/scan` });
+export const loader = ({ request }: LoaderFunctionArgs) => {
+  const moved = legacyHostRedirect(request);
+  if (moved) throw moved;
+  return { canonical: `${siteOrigin(request)}/scan` };
+};
+
+// The loader only returns the canonical URL, so a scan or waitlist post never needs to re-run it.
+// This also keeps a scan started on the old host from being redirected away from its result.
+export const shouldRevalidate: ShouldRevalidateFunction = ({ formMethod, defaultShouldRevalidate }) =>
+  formMethod ? false : defaultShouldRevalidate;
 
 export const meta: MetaFunction<typeof loader> = ({ loaderData }) => [
   { title: TITLE },

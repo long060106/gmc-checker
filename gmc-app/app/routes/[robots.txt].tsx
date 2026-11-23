@@ -1,9 +1,10 @@
 // /robots.txt: let search engines read the public pages, keep them out of the embedded app and
 // one-off email links, and point them to the sitemap.
 import type { LoaderFunctionArgs } from "react-router";
-import { siteOrigin } from "../lib/site.server";
+import { legacyHostRedirect, siteOrigin } from "../lib/site.server";
 
 export const loader = ({ request }: LoaderFunctionArgs) =>
+  legacyHostRedirect(request) ??
   new Response(
     [
       "User-agent: *",

@@ -1,11 +1,17 @@
 // Privacy policy for the public web checker (/scan) and waitlist.
-import type { MetaFunction } from "react-router";
+import type { LoaderFunctionArgs, MetaFunction } from "react-router";
 import type { CSSProperties } from "react";
 import { Link, useLoaderData } from "react-router";
 
+import { legacyHostRedirect } from "../lib/site.server";
+
 export const meta: MetaFunction = () => [{ title: "Privacy policy — Fixlog" }];
 
-export const loader = () => ({ contactEmail: process.env.CONTACT_EMAIL?.trim() || null });
+export const loader = ({ request }: LoaderFunctionArgs) => {
+  const moved = legacyHostRedirect(request);
+  if (moved) throw moved;
+  return { contactEmail: process.env.CONTACT_EMAIL?.trim() || null };
+};
 
 const wrap: CSSProperties = {
   maxWidth: 720,
