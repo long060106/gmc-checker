@@ -57,4 +57,4 @@ Bước nào đổi cài đặt trên tài khoản thì Claude hỏi bạn trư�
 
 ## C. Làm sau (không chặn việc nộp app)
 
-- Email `support@fixlog.me`: dùng Email Forwarding miễn phí của Namecheap để chuyển về Gmail. Như vậy check CON-04 của chính app sẽ hết cảnh báo về Gmail, và có thể xác minh domain trên Resend để gửi email hỏi kết quả (SETUP.md mục 5).
+- Email `support@fixlog.me`: **đã bật 2026-11-23**, dùng Redirect Email của Namecheap để chuyển về Gmail cá nhân (MX `eforward1-5.registrar-servers.com`, SPF `include:spf.efwd.registrar-servers.com`). Chưa đổi `CONTACT_EMAIL` trên Render và email hỗ trợ trong listing, hai chỗ này vẫn là `fixlog.support@proton.me`. Đổi sang `support@fixlog.me` thì check CON-04 của chính app sẽ hết cảnh báo về email miễn phí. Lưu ý: trả lời thư từ Gmail sẽ lộ địa chỉ Gmail. Xác minh domain trên Resend để gửi email hỏi kết quả (SETUP.md mục 5) vẫn chưa làm.

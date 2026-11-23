@@ -29,7 +29,7 @@ git push -u origin main
    ```
 
 ## 3. Tên miền + email [build now]
-Tên miền: **`fixlog.me`** (từ 2026-11-23, miễn phí năm đầu qua nc.me; các bước chuyển ở [docs/domain-migration.md](docs/domain-migration.md)). Host cũ `gmc-checker-wgme.onrender.com` vẫn chạy: các trang công khai redirect 301 sang fixlog.me, còn embedded app, webhooks, link trong email và `/healthz` vẫn trả lời trực tiếp. Email hỗ trợ vẫn là Gmail cho tới khi bật Email Forwarding cho `support@fixlog.me`; trong thời gian đó check CON-04 của chính app vẫn cảnh báo.
+Tên miền: **`fixlog.me`** (từ 2026-11-23, miễn phí năm đầu qua nc.me; các bước chuyển ở [docs/domain-migration.md](docs/domain-migration.md)). Host cũ `gmc-checker-wgme.onrender.com` vẫn chạy: các trang công khai redirect 301 sang fixlog.me, còn embedded app, webhooks, link trong email và `/healthz` vẫn trả lời trực tiếp. Email hỗ trợ đang dùng là `fixlog.support@proton.me` (`CONTACT_EMAIL` trên Render và trong listing). Từ 2026-11-23, `support@fixlog.me` chuyển tiếp về Gmail cá nhân qua Redirect Email của Namecheap, nhưng chưa được dùng ở chỗ công khai nào.
 
 **Cách miễn phí (cập nhật 2026-11-16):**
 1. **Ngay hôm nay:** tạo một Gmail riêng cho app (đừng dùng Gmail cá nhân, vì nó sẽ hiện công khai). Điền vào `CONTACT_EMAIL` trên Render.
