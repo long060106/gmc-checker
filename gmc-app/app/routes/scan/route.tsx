@@ -1,13 +1,15 @@
 // Public web checker at /scan. No Shopify auth: anyone can scan a public Shopify storefront.
 // Never throws to the user: every failure becomes a friendly message (App Store req 2.1.1 mindset).
-import type { ActionFunctionArgs, MetaFunction } from "react-router";
+import type { ActionFunctionArgs, LoaderFunctionArgs, MetaFunction } from "react-router";
 import { useState } from "react";
-import { Form, Link, data, useActionData, useFetcher, useNavigation, useSearchParams } from "react-router";
+import { Form, Link, data, useActionData, useFetcher, useLoaderData, useNavigation, useSearchParams } from "react-router";
 import { randomBytes } from "node:crypto";
 
 import prisma from "../../db.server";
 import { crawlStore, CrawlError } from "../../engine/crawl.server";
-import { CHECK_INFO, ENGINE_VERSION, runAll } from "../../engine/run";
+import { CHECK_INFO, CHECKS, ENGINE_VERSION, runAll } from "../../engine/run";
+import { REF } from "../../engine/refs";
+import { siteOrigin } from "../../lib/site.server";
 import type { Finding, Status } from "../../engine/types";
 import { shopKey } from "../../lib/shopkey.server";
 import { clientIp, rateLimit } from "../../lib/ratelimit.server";
@@ -15,13 +17,35 @@ import { LABELS } from "../../lib/labels";
 
 import styles from "./styles.module.css";
 
-export const meta: MetaFunction = () => [
-  { title: "Fixlog – storefront check for Google Merchant Center" },
-  {
-    name: "description",
-    content:
-      "Free check of a Shopify storefront against Google Merchant Center's published website requirements. Every finding shown, with the Google rule and the Shopify fix.",
-  },
+const TITLE = "Shopify GMC misrepresentation check (free) – Fixlog";
+const DESCRIPTION =
+  "Free check of a Shopify store against Google Merchant Center's website rules. Every finding links to Google's rule and says where to fix it.";
+
+export const loader = ({ request }: LoaderFunctionArgs) => ({ canonical: `${siteOrigin(request)}/scan` });
+
+export const meta: MetaFunction<typeof loader> = ({ loaderData }) => [
+  { title: TITLE },
+  { name: "description", content: DESCRIPTION },
+  ...(loaderData ? [{ tagName: "link", rel: "canonical", href: loaderData.canonical }] : []),
+  { property: "og:title", content: TITLE },
+  { property: "og:description", content: DESCRIPTION },
+  { property: "og:type", content: "website" },
+  ...(loaderData
+    ? [
+        {
+          "script:ld+json": {
+            "@context": "https://schema.org",
+            "@type": "WebApplication",
+            name: "Fixlog storefront check",
+            url: loaderData.canonical,
+            applicationCategory: "BusinessApplication",
+            operatingSystem: "Web",
+            description: DESCRIPTION,
+            offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+          },
+        },
+      ]
+    : []),
 ];
 
 const GROUP_ORDER = ["Site", "Identity", "Contact", "Policies", "Pricing", "Claims"] as const;
@@ -319,7 +343,97 @@ function WaitlistThanks({ optedIn }: { optedIn: boolean }) {
   );
 }
 
+const NEEDS_NOTE: Record<string, string> = {
+  gmcName: "uses the business name you type above",
+  app: "in the Shopify app only",
+};
+
+/** The list of checks, from the engine itself, so search engines and visitors see what is covered. */
+function WhatWeCheck() {
+  const active = CHECKS.map(([id]) => id);
+  return (
+    <section className={styles.about} aria-labelledby="what-we-check">
+      <h2 id="what-we-check" className={styles.waitlistTitle}>
+        What the check looks at
+      </h2>
+      <p className={styles.muted}>
+        {active.length} checks of your public pages, each one taken from a Google Merchant Center help page. They cover
+        the website side of Merchant Center reviews (often labelled &quot;Misrepresentation&quot; or &quot;Website needs
+        improvement&quot;), not your product feed or account verification.
+      </p>
+      {GROUP_ORDER.map((group) => {
+        const ids = active.filter((id) => CHECK_INFO[id]?.group === group);
+        if (!ids.length) return null;
+        return (
+          <div key={group}>
+            <h3 className={styles.groupTitle}>{group}</h3>
+            <ul className={styles.aboutList}>
+              {ids.map((id) => {
+                const info = CHECK_INFO[id];
+                return (
+                  <li key={id}>
+                    {info.title}
+                    {info.needs ? <span className={styles.muted}> ({NEEDS_NOTE[info.needs]})</span> : null} ·{" "}
+                    <a href={info.ref} target="_blank" rel="noreferrer">
+                      Google&apos;s page ↗
+                    </a>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        );
+      })}
+      <p>
+        <Link to="/guides/gmc-misrepresentation-shopify">
+          Read the checklist: what Google&apos;s help pages list for Shopify stores, and where to fix each item
+        </Link>
+      </p>
+    </section>
+  );
+}
+
+function Faq() {
+  return (
+    <section className={styles.about} aria-labelledby="faq">
+      <h2 id="faq" className={styles.waitlistTitle}>
+        Questions
+      </h2>
+      <h3 className={styles.question}>Does a clean report mean Google will reinstate my account?</h3>
+      <p>
+        No. Google alone decides. The check covers Google&apos;s published website rules only; a suspension can also come
+        from product data, the feed or account verification, which Merchant Center shows in its own issue details.
+      </p>
+      <h3 className={styles.question}>Why read the HTML before JavaScript runs?</h3>
+      <p>
+        Google&apos;s{" "}
+        <a href={REF.priceMismatch} target="_blank" rel="noreferrer">
+          price mismatch help page
+        </a>{" "}
+        says data passed with JavaScript after the page loads will trigger an error. So the check reads what your store
+        sends before any script runs.
+      </p>
+      <h3 className={styles.question}>How long does a Merchant Center review take?</h3>
+      <p>
+        Google&apos;s{" "}
+        <a href={REF.requestReview} target="_blank" rel="noreferrer">
+          review page
+        </a>{" "}
+        says to wait 7 business days and that a review may take up to 2 weeks. If issues aren&apos;t resolved by the
+        second attempt, a one-week cool-down may begin, and it may grow with each unsuccessful review. Fix everything
+        you can before you ask.
+      </p>
+      <h3 className={styles.question}>What do you store?</h3>
+      <p>
+        The result of each check (pass, fix or check) under a one-way hash of the store address. Not the page content,
+        and not the business name you type. See the <Link to="/privacy">privacy policy</Link>.
+      </p>
+    </section>
+  );
+}
+
 export default function ScanPage() {
+  useLoaderData<typeof loader>(); // canonical URL for meta only
   const result = useActionData<typeof action>() as ActionResult | undefined;
   const [params] = useSearchParams();
   const nav = useNavigation();
@@ -361,6 +475,9 @@ export default function ScanPage() {
       {/* JS-disabled fallback: the waitlist form posts as a normal navigation and lands here. */}
       {result?.intent === "waitlist" &&
         (result.ok ? <WaitlistThanks optedIn={result.optedIn} /> : <p className={styles.error}>{result.error}</p>)}
+
+      <WhatWeCheck />
+      <Faq />
 
       <footer className={styles.footer}>
         <p>

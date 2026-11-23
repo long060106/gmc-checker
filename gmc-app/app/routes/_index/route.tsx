@@ -11,5 +11,5 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   if (url.searchParams.get("shop")) {
     throw redirect(`/app?${url.searchParams.toString()}`);
   }
-  throw redirect("/scan");
+  throw redirect("/scan", 301); // permanent, so search engines index /scan as the home page
 };

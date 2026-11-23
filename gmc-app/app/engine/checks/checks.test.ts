@@ -189,3 +189,15 @@ describe("storefront password form", () => {
   });
   it("returns null when there is no password form", () => expect(passwordFormFields("<form action='/cart'></form>")).toBeNull());
 });
+
+describe("CHECK_INFO.ref (the Google page listed on /scan for each check)", () => {
+  it("matches the page each check's findings link to", () => {
+    const s = snap({ pages: { home: page(HOME_HTML) } });
+    for (const [id, fn] of CHECKS) {
+      const f = fn(s, { gmcBusinessName: "Acme Goods" });
+      // SITE-03 points to the trust page instead when the home page has no social links at all.
+      if (id === "SITE-03" && f.googleRef !== CHECK_INFO[id].ref) continue;
+      expect(f.googleRef, id).toBe(CHECK_INFO[id].ref);
+    }
+  });
+});
