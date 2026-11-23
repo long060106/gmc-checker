@@ -26,7 +26,7 @@ Mỗi kênh một tag, để `npm run stats` tách được kênh nào ra scan:
 
 | Kênh | Link |
 |---|---|
-| Shopify Community, Ask and Offer | `https://gmc-checker-wgme.onrender.com/scan?ref=sc-askoffer` |
+| Shopify Community, Ask and Offer | `https://fixlog.me/scan?ref=sc-askoffer` |
 | Reddit r/PPC | `...?ref=reddit-ppc` |
 | Reddit r/shopify | `...?ref=reddit-shopify` |
 | Reddit r/googleads | `...?ref=reddit-googleads` |
@@ -92,7 +92,7 @@ Link: https://community.shopify.com/t/657684
 >
 > It reads the HTML your store sends, before any JavaScript runs, and checks it against Google's published Merchant Center website requirements. That covers contact details, business-name consistency, return/refund/shipping policy content, placeholder text, broken links, prices in structured data vs. the page, and claims Google calls unreliable. Every finding shows what it saw, the Google help page the rule comes from, and where to fix it in Shopify. Nothing is hidden behind a paywall.
 >
-> https://gmc-checker-wgme.onrender.com/scan?ref=sc-askoffer
+> https://fixlog.me/scan?ref=sc-askoffer
 >
 > What it can't do: see your Merchant Center account, product feed or verification status, or tell you whether you'll be reinstated. Only Google decides that. A clean report means the public criteria it checks look fine, nothing more.
 >

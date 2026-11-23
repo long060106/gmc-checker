@@ -1,6 +1,6 @@
 # App review: test instructions + screencast script (Fixlog)
 
-Updated 2026-11-16 for the production app **Fixlog** (`shopify.app.production.toml`, served from `https://gmc-checker-wgme.onrender.com`).
+Updated 2026-11-16 for the production app **Fixlog** (`shopify.app.production.toml`, served from `https://fixlog.me`; the old host `gmc-checker-wgme.onrender.com` still answers and redirects public pages).
 
 ## Test instructions for Shopify's reviewer (paste into the submission form)
 1. Install the app. You land on the app home ("Storefront check") inside Shopify admin, with no extra sign-in.
@@ -19,7 +19,7 @@ Moved to `docs/submission-guide.md`, part C (11 shots with English narration, re
 ## Pre-submission checklist
 - [x] Separate production app "Fixlog" with `application_url` = Render URL, compliance webhooks, `automatically_update_urls_on_dev = false` (released as fixlog-2, 2026-11-16)
 - [x] App icon 1200×1200 uploaded (`docs/listing/icon-1200.png`, redraw with `docs/listing/make-icon.ps1`)
-- [x] Privacy policy at `https://gmc-checker-wgme.onrender.com/privacy` covers the web checker and the Shopify app
+- [x] Privacy policy at `https://fixlog.me/privacy` covers the web checker and the Shopify app
 - [x] `SHOPIFY_API_SECRET` on Render = Fixlog's client secret (Long, 2026-11-20)
 - [x] Install Fixlog on the dev store and click through steps 1–6 above with no 404/500 (Req 2.1.1): all passed 2026-11-21, including the Pass purchase (test charge) and the refund
   - 2026-11-21: installed on long-gmc-test; steps 1, 2 (password banner), 3 and 6 OK. Step 2 full report waits for Long to save the storefront password in the app. Step 5 fails until Public distribution is chosen: Shopify answers "Apps without a public distribution cannot use the Billing API" (the app shows "Purchase not started", nothing charged). After Public distribution was chosen, step 5 reaches Shopify's "Approve charge" page ("You will not be billed for this test charge"); Long approves it himself (terms + possibly a payment method). 2026-11-21 afternoon: storefront password saved, full report OK (10 of 19 passed); step 4 snapshot + kit OK after adding an About page; no approved Pass purchase reached the server yet.

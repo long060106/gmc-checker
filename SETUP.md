@@ -29,7 +29,7 @@ git push -u origin main
    ```
 
 ## 3. Tên miền + email [build now]
-Nộp App Store **không bắt buộc** có tên miền: app chạy được trên `gmc-checker-wgme.onrender.com`, và email hỗ trợ có thể là Gmail. Nhưng không có tên miền thì không gửi được email hỏi kết quả qua Resend, và check CON-04 của chính app sẽ cảnh báo vì dùng Gmail.
+Tên miền: **`fixlog.me`** (từ 2026-11-23, miễn phí năm đầu qua nc.me; các bước chuyển ở [docs/domain-migration.md](docs/domain-migration.md)). Host cũ `gmc-checker-wgme.onrender.com` vẫn chạy: các trang công khai redirect 301 sang fixlog.me, còn embedded app, webhooks, link trong email và `/healthz` vẫn trả lời trực tiếp. Email hỗ trợ vẫn là Gmail cho tới khi bật Email Forwarding cho `support@fixlog.me`; trong thời gian đó check CON-04 của chính app vẫn cảnh báo.
 
 **Cách miễn phí (cập nhật 2026-11-16):**
 1. **Ngay hôm nay:** tạo một Gmail riêng cho app (đừng dùng Gmail cá nhân, vì nó sẽ hiện công khai). Điền vào `CONTACT_EMAIL` trên Render.
@@ -55,10 +55,10 @@ Render free không có ổ đĩa giữ lại được (mỗi lần khởi độn
    - `TURSO_DATABASE_URL`, `TURSO_AUTH_TOKEN`: từ 4.1.
    - `SHOPKEY_SECRET`: tạo mới bằng `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`. **Tạo một lần, giữ mãi**: đổi khóa là mọi shopKey cũ không còn khớp.
    - `SHOPIFY_API_KEY`, `SHOPIFY_API_SECRET`: lấy bằng `npm run env -- show` trong `gmc-app`.
-   - `SHOPIFY_APP_URL`: `https://gmc-checker-wgme.onrender.com` (URL thật; `gmc-checker.onrender.com` là app của người khác).
+   - `SHOPIFY_APP_URL`: `https://fixlog.me` (trước 2026-11-23 là `https://gmc-checker-wgme.onrender.com`; `gmc-checker.onrender.com` là app của người khác).
    - `CONTACT_EMAIL`: để trống cho tới khi có domain.
 3. Bấm Apply, đợi build xong (3–5 phút). Mỗi lần `git push` lên `main` là Render tự deploy lại.
-4. Kiểm tra: mở `https://gmc-checker-wgme.onrender.com/scan` và scan thử `allbirds.com`.
+4. Kiểm tra: mở `https://fixlog.me/scan` và scan thử `allbirds.com`.
 
 **4.3 Giữ server không ngủ**
 Render free tắt server sau 15 phút không có ai truy cập; lần mở sau phải đợi khoảng 1 phút. Người từ forum bấm link mà phải đợi 1 phút sẽ bỏ đi, làm sai kết quả test 7 ngày. Cách xử lý: đăng ký cron-job.org (free), tạo job gọi `https://gmc-checker-wgme.onrender.com/healthz` mỗi 10 phút (đã làm 2026-11-16; đừng dùng `/privacy`, trang đó quá lớn với cron-job.org). Render free cho 750 giờ/tháng, đủ cho 1 server chạy suốt tháng.
@@ -70,7 +70,7 @@ Render free tắt server sau 15 phút không có ai truy cập; lần mở sau p
 - Hai app "Long Nguyen" (Nov 11, 0 lượt cài) và "gmc-checker-dev" trong Dev Dashboard không dùng tới. Muốn dọn thì tự xóa; Claude không xóa.
 
 ## 5. Email hỏi kết quả sau 14 ngày [build now]
-1. Đăng ký Resend và xác minh tên miền. Script gửi email chạy **trên máy bạn** nhưng đọc database Turso, nên ghi vào `gmc-app/.env` (không commit file này): `TURSO_DATABASE_URL`, `TURSO_AUTH_TOKEN`, `RESEND_API_KEY`, `MAIL_FROM="Tên <support@domain>"`, `MAIL_POSTAL_ADDRESS="..."`, `APP_PUBLIC_URL=https://gmc-checker-wgme.onrender.com`.
+1. Đăng ký Resend và xác minh tên miền. Script gửi email chạy **trên máy bạn** nhưng đọc database Turso, nên ghi vào `gmc-app/.env` (không commit file này): `TURSO_DATABASE_URL`, `TURSO_AUTH_TOKEN`, `RESEND_API_KEY`, `MAIL_FROM="Tên <support@domain>"`, `MAIL_POSTAL_ADDRESS="..."`, `APP_PUBLIC_URL=https://fixlog.me`.
    ⚠️ Khi `.env` có `TURSO_DATABASE_URL`, `npm run dev` cũng sẽ dùng database production. Ghi xong, gửi email xong thì xóa hai dòng TURSO khỏi `.env`.
 2. Mỗi ngày chạy một lần. Chạy thử trước (dry-run, chỉ in ra, không gửi):
    ```bash

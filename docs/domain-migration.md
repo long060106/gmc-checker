@@ -1,5 +1,12 @@
 # Chuyển Fixlog sang fixlog.me
 
+**Trạng thái (2026-11-23): đã chuyển xong.** Đã làm các bước: Render (custom domain + `SHOPIFY_APP_URL`), DNS ở Namecheap, Shopify app version `fixlog-3`, Search Console (property Domain `fixlog.me`, sitemap, request indexing `/scan` và guide) và IndexNow.
+
+Còn lại:
+- Mục C bên dưới.
+- Chuyển domain sang tài khoản Namecheap gắn Gmail. Hiện domain nằm ở tài khoản gắn email UCF; dùng tính năng Push domain của Namecheap.
+- Record TXT `google-site-verification` ở `@` phải giữ, xoá đi thì Search Console mất xác minh.
+
 Viết ngày 2026-11-23. Domain: `fixlog.me`, miễn phí năm đầu qua [nc.me](https://nc.me/) (Namecheap for Education). Từ năm thứ hai giá $15/năm và tự gia hạn; có thể tắt auto-renew trong Namecheap.
 
 Code đã chuẩn bị sẵn (`legacyHostRedirect` trong `gmc-app/app/lib/site.server.ts`). Nó **chưa làm gì** khi `SHOPIFY_APP_URL` còn là onrender. Đổi biến đó sang `https://fixlog.me` thì host cũ tự redirect 301 các trang công khai: `/`, `/scan`, `/guides/*`, `/privacy`, `/robots.txt`, `/sitemap.xml`.

@@ -86,7 +86,7 @@ Mở: Dev Dashboard → Apps → **Fixlog** → trang **App Store review / Distr
 | Pricing | 2 gói: **Free** (every finding of every scan, 3 scans per 30 days, first pre-review snapshot and review kit, review history) và **Reinstatement Pass**, one-time **$39** (60 days of unlimited scans, a snapshot and review kit for every review request). Không ghi giá ở bất kỳ chỗ nào khác. |
 | Category / tags | chọn category gần nhất với Google Shopping / Merchant Center. Form có định nghĩa từng category; chọn theo chức năng chính là kiểm tra storefront. |
 | Install requirements | yêu cầu sales channel **Online Store** (app đọc storefront công khai). Không giới hạn quốc gia. |
-| Privacy policy URL | `https://gmc-checker-wgme.onrender.com/privacy` |
+| Privacy policy URL | `https://fixlog.me/privacy` |
 | Support / contact email | `fixlog.support@proton.me` |
 | App submission contact email | `fixlog.support@proton.me`. Shopify gửi mọi email về đợt review vào địa chỉ này. |
 

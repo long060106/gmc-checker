@@ -5,7 +5,7 @@
 
 client_id = "af9f784b92c83ce6c1f67e7b65a570cb"
 name = "Fixlog"
-application_url = "https://gmc-checker-wgme.onrender.com"
+application_url = "https://fixlog.me"
 embedded = true
 
 [access_scopes]
@@ -15,7 +15,7 @@ optional_scopes = [ ]
 use_legacy_install_flow = false
 
 [auth]
-redirect_urls = [ "https://gmc-checker-wgme.onrender.com/api/auth" ]
+redirect_urls = [ "https://fixlog.me/api/auth" ]
 
 [webhooks]
 api_version = "2026-10"

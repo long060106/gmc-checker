@@ -78,7 +78,7 @@ Giao diện Google Ads hay đổi chữ. Nếu không thấy đúng tên nút, t
 
 1. **Campaigns → + New campaign.**
    - Objective: **"Create a campaign without guidance"** (hoặc "Website traffic").
-   - Campaign type: **Search**. Goal: website visits, nhập `https://gmc-checker-wgme.onrender.com/scan?ref=gads`.
+   - Campaign type: **Search**. Goal: website visits, nhập `https://fixlog.me/scan?ref=gads`.
 2. **Networks:** **bỏ tick** "Search partners" và **bỏ tick** "Display Network". Chỉ chạy trên Google Search.
 3. **Locations:** United States, United Kingdom, Canada, Australia.
    Mở **Location options** → chọn **"Presence: People in or regularly in your included locations"**.
@@ -100,7 +100,7 @@ Giao diện Google Ads hay đổi chữ. Nếu không thấy đúng tên nút, t
    ```
    Dấu `[ ]` là exact match: chỉ hiện khi người ta tìm đúng cụm này. Dấu `" "` là phrase match: cho phép thêm vài chữ quanh cụm.
 9. **Quảng cáo (Responsive search ad):**
-   - Final URL: `https://gmc-checker-wgme.onrender.com/scan?ref=gads`
+   - Final URL: `https://fixlog.me/scan?ref=gads`
    - Headlines (≤ 30 ký tự, đã đếm):
      `Merchant Center Suspended?` · `Free Shopify Storefront Check` · `Misrepresentation Check` · `Every Finding Shown, Free` · `Check Before You Request` · `No Sign-Up Needed`
    - Descriptions (≤ 90 ký tự, đã đếm):
