@@ -87,8 +87,8 @@ Mở: Dev Dashboard → Apps → **Fixlog** → trang **App Store review / Distr
 | Category / tags | chọn category gần nhất với Google Shopping / Merchant Center. Form có định nghĩa từng category; chọn theo chức năng chính là kiểm tra storefront. |
 | Install requirements | yêu cầu sales channel **Online Store** (app đọc storefront công khai). Không giới hạn quốc gia. |
 | Privacy policy URL | `https://fixlog.me/privacy` |
-| Support / contact email | `fixlog.support@proton.me` |
-| App submission contact email | `fixlog.support@proton.me`. Shopify gửi mọi email về đợt review vào địa chỉ này. |
+| Support / contact email | `support@fixlog.me` (chuyển tiếp về hộp thư `fixlog.support@proton.me`) |
+| App submission contact email | `fixlog.support@proton.me`. Shopify gửi mọi email về đợt review vào địa chỉ này; để thẳng hộp thư Proton cho chắc, không qua forwarding. |
 
 **Alt text cho 5 screenshot:**
 1. `Storefront check results for site and identity, each marked Check or Pass`

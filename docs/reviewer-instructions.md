@@ -23,7 +23,7 @@ Moved to `docs/submission-guide.md`, part C (11 shots with English narration, re
 - [x] `SHOPIFY_API_SECRET` on Render = Fixlog's client secret (Long, 2026-11-20)
 - [x] Install Fixlog on the dev store and click through steps 1–6 above with no 404/500 (Req 2.1.1): all passed 2026-11-21, including the Pass purchase (test charge) and the refund
   - 2026-11-21: installed on long-gmc-test; steps 1, 2 (password banner), 3 and 6 OK. Step 2 full report waits for Long to save the storefront password in the app. Step 5 fails until Public distribution is chosen: Shopify answers "Apps without a public distribution cannot use the Billing API" (the app shows "Purchase not started", nothing charged). After Public distribution was chosen, step 5 reaches Shopify's "Approve charge" page ("You will not be billed for this test charge"); Long approves it himself (terms + possibly a payment method). 2026-11-21 afternoon: storefront password saved, full report OK (10 of 19 passed); step 4 snapshot + kit OK after adding an About page; no approved Pass purchase reached the server yet.
-- [x] `CONTACT_EMAIL` = fixlog.support@proton.me on Render, and Fixlog's API contact email changed to it (2026-11-21)
+- [x] `CONTACT_EMAIL` = support@fixlog.me on Render (2026-11-23; Namecheap forwards it to fixlog.support@proton.me). Fixlog's API contact email stays fixlog.support@proton.me (set 2026-11-21)
 - [x] Public distribution chosen on the Fixlog app (Long, 2026-11-21)
 - [ ] Emergency developer contact set (email + phone): Dev Dashboard → Organization settings → Organization (Long)
 - [ ] Screencast recorded on a fresh dev store and its link pasted into the form (Long; `docs/submission-guide.md` part C)
