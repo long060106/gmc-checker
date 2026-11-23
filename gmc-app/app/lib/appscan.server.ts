@@ -6,6 +6,7 @@ import prisma from "../db.server";
 import { crawlStore, CrawlError } from "../engine/crawl.server";
 import { ENGINE_VERSION, runAll } from "../engine/run";
 import type { CheckInput, Finding, Status } from "../engine/types";
+import { moveShopHistory } from "./shophistory.server";
 import { shopKey } from "./shopkey.server";
 
 export type ScanShopResult =
@@ -26,7 +27,10 @@ export async function profileInput(shop: string): Promise<CheckInput> {
 /** Never throws: every failure becomes a friendly message (App Store req 2.1.1 — no 500s). */
 export async function scanShop(shopDomain: string, input: CheckInput): Promise<ScanShopResult> {
   try {
-    const profile = await prisma.shopProfile.findUnique({ where: { shop: shopDomain }, select: { storefrontPassword: true } });
+    const profile = await prisma.shopProfile.findUnique({
+      where: { shop: shopDomain },
+      select: { storefrontPassword: true, shopKey: true },
+    });
     const snapshot = await crawlStore(`https://${shopDomain}`, {
       storefrontPassword: profile?.storefrontPassword ?? undefined,
     });
@@ -43,6 +47,8 @@ export async function scanShop(shopDomain: string, input: CheckInput): Promise<S
         gmcNameProvided: Boolean(input.gmcBusinessName),
       },
     });
+    // New storefront domain = new key: carry the review history over (see shophistory.server.ts).
+    await moveShopHistory(prisma, shopDomain, profile?.shopKey, key);
     await prisma.shopProfile.upsert({
       where: { shop: shopDomain },
       create: { shop: shopDomain, shopKey: key },

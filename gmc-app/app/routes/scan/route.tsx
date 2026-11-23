@@ -168,7 +168,8 @@ async function joinWaitlist(form: FormData) {
     await prisma.waitlistEntry.upsert({
       where: { email },
       create: { email, ...fields },
-      update: { ...fields, unsubscribed: false },
+      // Never reset `unsubscribed`: anyone can type any address here, so an unsubscribe sticks.
+      update: fields,
     });
     return data<ActionResult>({ intent: "waitlist", ok: true, optedIn });
   } catch (e) {
@@ -332,7 +333,7 @@ function Waitlist({ scanId }: { scanId: string }) {
       <p className={styles.small}>
         We use your email only for the launch email and, if you tick the box, the 14-day question. See our <Link to="/privacy">privacy policy</Link>.
       </p>
-      {res?.intent === "waitlist" && !res.ok && <p className={styles.error}>{res.error}</p>}
+      {res?.intent === "waitlist" && !res.ok && <p className={styles.error} role="alert">{res.error}</p>}
       <button className={styles.button} type="submit" disabled={fetcher.state !== "idle"}>
         {fetcher.state !== "idle" ? "Saving…" : "Join the waitlist"}
       </button>
@@ -477,13 +478,13 @@ export default function ScanPage() {
         </button>
       </Form>
 
-      {result?.intent === "scan" && !result.ok && <p className={styles.error}>{result.error}</p>}
+      {result?.intent === "scan" && !result.ok && <p className={styles.error} role="alert">{result.error}</p>}
       {result?.intent === "scan" && result.ok && (
         <Report origin={result.origin} findings={result.findings} scanId={result.scanId} />
       )}
       {/* JS-disabled fallback: the waitlist form posts as a normal navigation and lands here. */}
       {result?.intent === "waitlist" &&
-        (result.ok ? <WaitlistThanks optedIn={result.optedIn} /> : <p className={styles.error}>{result.error}</p>)}
+        (result.ok ? <WaitlistThanks optedIn={result.optedIn} /> : <p className={styles.error} role="alert">{result.error}</p>)}
 
       <WhatWeCheck />
       <Faq />

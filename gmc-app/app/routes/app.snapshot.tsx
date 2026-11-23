@@ -210,7 +210,7 @@ export default function Snapshot() {
               ))}
             </s-select>
             <s-checkbox
-              label="Share my anonymized fixes and outcome to improve the rankings (no store address is shared)"
+              label="Let Fixlog include my fixes and review outcome in combined statistics. My store's address is never shared."
               checked={consent}
               onChange={(e) => setConsent(e.currentTarget.checked)}
             ></s-checkbox>

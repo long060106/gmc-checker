@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  billingTestMode,
   FREE_SCANS,
   PASS_PLAN,
   passFromPurchases,
@@ -94,5 +95,22 @@ describe("free limits", () => {
     expect(snapshotAllowed(1, free)).toBe(true);
     expect(snapshotAllowed(2, free)).toBe(false);
     expect(snapshotAllowed(2, paid)).toBe(true);
+  });
+});
+
+describe("billingTestMode", () => {
+  it("always uses test charges on development stores", () => {
+    expect(billingTestMode(true, { NODE_ENV: "production" })).toBe(true);
+    expect(billingTestMode(true, {})).toBe(true);
+  });
+
+  it("ignores BILLING_TEST in production, so a test charge can't unlock a real store", () => {
+    expect(billingTestMode(false, { NODE_ENV: "production", BILLING_TEST: "true" })).toBe(false);
+  });
+
+  it("honours BILLING_TEST outside production", () => {
+    expect(billingTestMode(false, { NODE_ENV: "development", BILLING_TEST: " true " })).toBe(true);
+    expect(billingTestMode(false, { NODE_ENV: "development" })).toBe(false);
+    expect(billingTestMode(false, { BILLING_TEST: "false" })).toBe(false);
   });
 });
