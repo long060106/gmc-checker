@@ -19,21 +19,21 @@ New Merchant Center apps seen in the same searches (2026-11-16), not yet profile
 61 characters. Backup: "Check your store against Google rules before a GMC review" (57).
 
 ## Feature media
-`docs/listing/feature-image.png` (1600×900, drawn by `docs/listing/make-feature-image.ps1`): headline "Show exactly what you changed" plus the pre-review snapshot screenshot. Alt text: "Fixlog snapshot of the changes made before a Merchant Center review request".
+`docs/listing/feature-image.png` (1600×900, drawn by `docs/listing/make-feature-image.ps1`): headline "See which checks changed" plus the pre-review snapshot screenshot. Alt text: "Fixlog snapshot listing which checks changed before a Merchant Center review request".
 
 ## App introduction (≤ 100)
-> Check your storefront against Google's published Merchant Center rules and track what you fix.
+> Check your storefront against Google's Merchant Center website rules and track what you fix.
 
 ## App details (≤ 500)
-> Suspended by Merchant Center and the notice doesn't say why? This app reads your public storefront the way Google's crawler does and checks it against Google's published website, contact, policy and pricing rules. Every finding shows what we saw, the Google help page it comes from, and where to fix it in Shopify. Before you request a review, take a snapshot: you get a dated list of what changed since your last scan. Independent tool, not affiliated with Google. Google alone decides on reviews.
+> Suspended by Merchant Center and the notice doesn't say why? This app reads your storefront's HTML before any JavaScript runs and checks it against Google's published website, contact, policy and pricing rules. Every finding shows what we saw, the Google help page it comes from, and where to fix it in Shopify. Before you request a review, take a snapshot: a dated list of checks that changed since your last scan. Independent tool, not affiliated with Google. Google alone decides on reviews.
 
 ## Feature list (≤ 80 each)
-- Scan your storefront against Google's published Merchant Center rules
+- Check your storefront against website rules in Google's Merchant Center help
 - Every finding shows evidence, Google's rule, and where to fix it in Shopify
-- Pre-review snapshot: see exactly what changed since your last scan
+- Pre-review snapshot: see which checks changed since your last scan
 - Review request kit: what changed, what's still flagged, your earlier requests
-- Dated history of your review requests and their outcomes
-- Reads only your public storefront. No customer or order data
+- Dated history of your review requests and the outcomes you record
+- Reads only your storefront pages. No access to customers, orders or products
 
 ## Search terms (≤ 5)
 merchant center suspended · misrepresentation · website needs improvement · google shopping policy · gmc compliance

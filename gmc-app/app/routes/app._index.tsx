@@ -129,7 +129,7 @@ export const action = async ({ request }: ActionFunctionArgs): Promise<ActionRes
       intent: "scan",
       ok: false,
       limit: true,
-      error: `You've used your ${FREE_SCANS} free scans for the last ${FREE_WINDOW_DAYS} days. Your earlier results are still below.`,
+      error: `You've used your ${FREE_SCANS} free scans in the last ${FREE_WINDOW_DAYS} days. Your earlier results are still below.`,
     };
   }
 
@@ -153,7 +153,7 @@ const fmtDate = (iso: string) => new Date(iso).toLocaleDateString(undefined, { y
 function summary(statuses: Status[]) {
   const checked = statuses.filter((s) => s !== "na");
   const passed = checked.filter((s) => s === "pass").length;
-  return `${passed} of ${checked.length} published Google criteria we checked passed`;
+  return `${passed} of ${checked.length} checks passed`;
 }
 
 function FindingList({ findings }: { findings: Finding[] }) {
@@ -250,12 +250,12 @@ export default function Index() {
       {askOutcome.length > 0 && outcomeFetcher.state === "idle" && !outcomeFetcher.data ? (
         <s-banner tone="info" heading={`Did Google finish reviewing your request from ${fmtDate(askOutcome[0].requestedAt)}?`}>
           <s-paragraph>
-            One tap. If you opted in to sharing, your answer (with no store address) helps show which fixes other merchants made
-            before being reinstated.
+            One tap. If you opted in to sharing, your answer is saved without your store address and helps other merchants
+            see which fixes came before a reinstatement.
           </s-paragraph>
           <s-stack direction="inline" gap="base">
             <s-button onClick={() => answer(askOutcome[0].id, "reinstated")}>Reinstated</s-button>
-            <s-button onClick={() => answer(askOutcome[0].id, "rejected")}>Rejected</s-button>
+            <s-button onClick={() => answer(askOutcome[0].id, "rejected")}>Not reinstated</s-button>
             <s-button variant="tertiary" onClick={() => answer(askOutcome[0].id, "pending")}>
               Still waiting
             </s-button>
@@ -318,8 +318,8 @@ export default function Index() {
           <s-stack direction="block" gap="base">
             <s-paragraph>
               Google can't see a password-protected store. Remove the password in Online Store → Preferences when you
-              launch. Until then, save your storefront password here and the scan will check what Google will see once
-              the password is gone. It is only used to open your store for scans, and deleted when you uninstall.
+              launch. Until then, save your storefront password here and the scan will check your store as it will look
+              once the password is removed. It is only used to open your store for scans, and deleted when you uninstall.
             </s-paragraph>
             <s-text-field
               label="Storefront password"
@@ -365,9 +365,9 @@ export default function Index() {
       ) : (
         <s-section heading="Check your storefront before you ask Google for a review">
           <s-paragraph>
-            The scan reads your public storefront the way Google's crawler does and checks it against Google Merchant
-            Center's published website requirements: contact details, policies, placeholder text, broken links, prices
-            and claims.
+            The scan reads the HTML your storefront sends, before any JavaScript runs, and checks it against the website
+            rules in Google&apos;s Merchant Center help: contact details, policies, placeholder text, broken links, prices
+            and claims. It takes up to 30 seconds.
           </s-paragraph>
           <s-button variant="primary" onClick={runScan} {...(scanning ? { loading: true } : {})}>
             Scan my store
@@ -390,7 +390,7 @@ export default function Index() {
       <s-section slot="aside" heading="Before you request a review">
         <s-paragraph>
           Each failed review can cost a week or more of waiting. When you've made your fixes, take a snapshot: it records
-          exactly what changed since your first scan, so you can list it in your request.
+          which checks changed since your first scan, so you can list them in your request.
         </s-paragraph>
         <s-link href="/app/snapshot">Take a pre-review snapshot</s-link>
       </s-section>
@@ -399,7 +399,7 @@ export default function Index() {
         <s-paragraph>
           {passActive && passUntil
             ? `Active until ${fmtDate(passUntil)}: unlimited scans and snapshots.`
-            : `${left ?? 0} of ${FREE_SCANS} free scans left in the last ${FREE_WINDOW_DAYS} days.`}
+            : `${left ?? 0} of ${FREE_SCANS} free scans left. Scans older than ${FREE_WINDOW_DAYS} days don't count.`}
         </s-paragraph>
         {!passActive ? (
           <s-link href="/app/pass">{`Unlimited scans for 60 days, $${PASS_PRICE_USD} once${refundNote}`}</s-link>

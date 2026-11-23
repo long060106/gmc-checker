@@ -40,10 +40,10 @@ $g.DrawString("Fixlog", $brandFont, (New-Object System.Drawing.SolidBrush $white
 # Headline and one supporting line, wrapped inside the left column
 $left = New-Object System.Drawing.RectangleF 84, 300, 540, 300
 $headFont = New-Object System.Drawing.Font "Segoe UI Semibold", 64, ([System.Drawing.FontStyle]::Regular), ([System.Drawing.GraphicsUnit]::Pixel)
-$g.DrawString("Show exactly what you changed", $headFont, (New-Object System.Drawing.SolidBrush $white), $left)
+$g.DrawString("See which checks changed", $headFont, (New-Object System.Drawing.SolidBrush $white), $left)
 $subFont = New-Object System.Drawing.Font "Segoe UI", 30, ([System.Drawing.FontStyle]::Regular), ([System.Drawing.GraphicsUnit]::Pixel)
 $sub = New-Object System.Drawing.RectangleF 90, 590, 540, 120
-$g.DrawString("A dated snapshot of your fixes before each review request", $subFont, (New-Object System.Drawing.SolidBrush $soft), $sub)
+$g.DrawString("A dated record you can paste into each review request", $subFont, (New-Object System.Drawing.SolidBrush $soft), $sub)
 
 # The app UI on a white card with a soft shadow
 $cw = 880; $ch = [int]($cw * 9 / 16); $cx = 660; $cy = [int](($H - $ch) / 2)

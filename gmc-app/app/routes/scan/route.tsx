@@ -187,7 +187,7 @@ function Report({ origin, findings, scanId }: { origin: string; findings: Findin
         <strong>
           {passed} of {applicable.length}
         </strong>{" "}
-        published Google criteria we checked passed · <span className={styles.failText}>{toFix} to fix</span> ·{" "}
+        checks passed · <span className={styles.failText}>{toFix} to fix</span> ·{" "}
         <span className={styles.warnText}>{toCheck} to check</span>
       </p>
 
@@ -247,8 +247,8 @@ function Waitlist({ scanId }: { scanId: string }) {
       <input type="hidden" name="scanId" value={scanId} />
       <h2 className={styles.waitlistTitle}>Track your fixes before you request a review</h2>
       <p className={styles.muted}>
-        The Shopify app (coming soon) re-scans right before you request a review and lists exactly what you changed since
-        your first scan, so you can paste it into your appeal and keep a record between attempts.
+        The Shopify app (coming soon) re-scans right before you request a review and lists which checks changed since your
+        first scan, so you can paste the list into your review request and keep a record between attempts.
       </p>
 
       <fieldset className={styles.fieldset}>
@@ -297,7 +297,7 @@ function Waitlist({ scanId }: { scanId: string }) {
         question, one click).
       </label>
       <p className={styles.small}>
-        We use your email only for this. See our <Link to="/privacy">privacy policy</Link>.
+        We use your email only for the launch email and, if you tick the box, the 14-day question. See our <Link to="/privacy">privacy policy</Link>.
       </p>
       {res?.intent === "waitlist" && !res.ok && <p className={styles.error}>{res.error}</p>}
       <button className={styles.button} type="submit" disabled={fetcher.state !== "idle"}>
@@ -330,8 +330,8 @@ export default function ScanPage() {
       <header className={styles.header}>
         <h1 className={styles.h1}>Check your Shopify store against Merchant Center's website rules</h1>
         <p className={styles.lede}>
-          Free. Every finding is shown, each linked to the Google help page it comes from and the place in Shopify to fix
-          it. We read your public pages the way Google's crawler does: server HTML, no JavaScript.
+          Free, and every finding is shown. Each one links to the Google help page it comes from and says where to fix it
+          in Shopify. We read the HTML your store sends, before any JavaScript runs.
         </p>
       </header>
 
@@ -344,7 +344,8 @@ export default function ScanPage() {
         </label>
         <label className={styles.field}>
           <span>
-            Business name exactly as in your Merchant Center <em className={styles.muted}>(optional)</em>
+            Business name as shown in Merchant Center{" "}
+            <em className={styles.muted}>(optional: we check that your site uses the same name)</em>
           </span>
           <input name="gmcBusinessName" placeholder="e.g. ABC Company" maxLength={120} />
         </label>

@@ -181,7 +181,7 @@ export default function Snapshot() {
       <s-section heading="Take a snapshot right before you ask Google">
         <s-paragraph>
           Each unsuccessful review in Merchant Center can start a cool-down that grows with every attempt. This snapshot
-          re-scans your store and lists exactly what changed since your first scan, so your request can say what you fixed.
+          re-scans your store and lists which checks changed since your first scan, so your request can say what you fixed.
           It is a record of changes, not a prediction: Google alone decides.
         </s-paragraph>
         {needsPass ? (
