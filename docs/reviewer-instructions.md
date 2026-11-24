@@ -27,7 +27,7 @@ Moved to `docs/submission-guide.md`, part C (11 shots with English narration, re
 - [x] Public distribution chosen on the Fixlog app (Long, 2026-11-21)
 - [ ] Emergency developer contact set (email + phone): Dev Dashboard → Organization settings → Organization (Long)
 - [ ] Screencast recorded on a fresh dev store and its link pasted into the form (Long; `docs/submission-guide.md` part C)
-- [x] App card subtitle and feature image ready (`docs/listing-draft.md`, `docs/listing/feature-image.png`, 2026-11-21)
-- [x] 3–6 screenshots, 1600×900, of the Fixlog app (not the dev app, whose admin title is "Long Nguyen"): 5 done in `docs/listing/screenshots/` (2026-11-21)
+- [x] App card subtitle and feature image ready (`docs/listing-draft.md`, `docs/listing/feature-image.png`, redrawn 2026-11-23)
+- [x] 3–6 screenshots, 1600×900, of the Fixlog app (not the dev app, whose admin title is "Long Nguyen"): 5 done in `docs/listing/screenshots/` (retaken on fixlog-demo 2026-11-23)
 - [ ] Shopify "AI self-review" run on the submission page, issues fixed
 - [ ] Listing text checked against the "Never write" list in `docs/listing-draft.md`

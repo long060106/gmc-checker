@@ -44,13 +44,14 @@ merchant center suspended · misrepresentation · website needs improvement · g
 - In the Partner Dashboard pricing form, list both. The app code is in `gmc-app/app/lib/pass.ts` (limits) and `app/routes/app.pass.tsx` (purchase page).
 
 ## Screenshots (3–6, 1600×900, no PII, no prices, no outcome promises)
-Files in `docs/listing/screenshots/` (taken 2026-11-21 on long-gmc-test, Fixlog app; cropped with `docs/listing/crop-screenshot.ps1`):
-1. `1-findings-site-identity.png`: Site and Identity findings (Check / Pass), Pass active so no price in the side panel.
-2. `2-policy-findings.png`: findings with evidence, "Where to fix" and "Google's rule".
-3. `3-merchant-center-info.png`: Merchant Center info form (made-up test data).
-4. `4-pre-review-snapshot.png`: "Changes made since …" list after adding an About page.
-5. `5-review-kit.png`: review request kit with Copy / Download .txt.
-Avoid the "Support email uses your store's domain" finding: on long-gmc-test it shows Long's personal Gmail.
+Files in `docs/listing/screenshots/` (retaken 2026-11-23 on the fixlog-demo store, Fixlog app, so no "Long GMC Test" name or long-gmc-test URL appears; cropped with `docs/listing/crop-screenshot.ps1`):
+1. `1-findings-site-identity.png`: "Social links" and Identity findings (Check / Pass) with the "About this check" side panel (no price shown).
+2. `2-policy-findings.png`: Policies findings (Fix / Check) with evidence, "Where to fix" and "Google's rule".
+3. `3-merchant-center-info.png`: Merchant Center info form filled with made-up test data (Fixlog Demo, +1 555 010 0199, support@example.com, 100 Test Street).
+4. `4-pre-review-snapshot.png`: snapshot for attempt 2: "Changes made since Nov 23, 2026" (contact details now match Merchant Center, after the demo Contact page was edited) plus the still-flagged list.
+5. `5-review-kit.png`: review request kit #2 with Copy / Download .txt and the record text.
+The feature image is drawn from screenshot 4, so re-run `make-feature-image.ps1` whenever shot 4 changes.
+Never take shots on long-gmc-test: its "Support email uses your store's domain" finding shows Long's personal Gmail.
 
 ## Never write (anywhere: listing, app, ads, forum)
 "get reinstated", "fix your suspension", "approval chance", "readiness score", "guaranteed", "Google-approved", "official".

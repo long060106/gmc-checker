@@ -91,10 +91,10 @@ Mở: Dev Dashboard → Apps → **Fixlog** → trang **App Store review / Distr
 | App submission contact email | `fixlog.support@proton.me`. Shopify gửi mọi email về đợt review vào địa chỉ này; để thẳng hộp thư Proton cho chắc, không qua forwarding. |
 
 **Alt text cho 5 screenshot:**
-1. `Storefront check results for site and identity, each marked Check or Pass`
+1. `Storefront check results for social links and business identity, each marked Check or Pass`
 2. `Policy findings with the evidence found, where to fix it in Shopify, and Google's rule`
 3. `Form for the business name, phone, email and address used in Merchant Center`
-4. `Pre-review snapshot listing the changes made since the first scan`
+4. `Pre-review snapshot listing what changed since an earlier scan and what is still flagged`
 5. `Review request kit with buttons to copy it or download it as a text file`
 
 **Proton:** để không lỡ email review, vào Proton → **Settings → Filters → Spam, block, and allow lists** → thêm `noreply@shopify.com` vào **Allow list**.
