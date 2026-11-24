@@ -11,7 +11,7 @@ import { authenticate } from "../shopify.server";
 import prisma from "../db.server";
 import { parseResults, profileInput, scanShop } from "../lib/appscan.server";
 import { getPass } from "../lib/pass.server";
-import { FREE_ATTEMPTS, snapshotAllowed } from "../lib/pass";
+import { FREE_ATTEMPTS, PASS_DAYS, PASS_PLAN, PASS_PRICE_USD, snapshotAllowed } from "../lib/pass";
 import { canBeBaseline, diffScans, isBlockedScan } from "../engine/diff";
 import { CHECK_INFO } from "../engine/run";
 import { LABELS } from "../lib/labels";
@@ -75,13 +75,13 @@ export const action = async ({ request }: ActionFunctionArgs): Promise<ActionRes
   if (!(label in LABELS)) return { ok: false, error: "Choose the issue Merchant Center shows for your account." };
   const consent = form.get("consent") === "on";
 
-  // 0. The first snapshot is free; later ones need the Reinstatement Pass. Checked before scanning.
+  // 0. The first snapshot is free; later ones need the Review Pass. Checked before scanning.
   const [{ pass }, next] = await Promise.all([getPass(admin, session.shop), nextAttemptNo(session.shop)]);
   if (!snapshotAllowed(next, pass)) {
     return {
       ok: false,
       needsPass: true,
-      error: `Your first ${FREE_ATTEMPTS === 1 ? "snapshot is" : `${FREE_ATTEMPTS} snapshots are`} free. For snapshot ${next}, get the Reinstatement Pass.`,
+      error: `Your first ${FREE_ATTEMPTS === 1 ? "snapshot is" : `${FREE_ATTEMPTS} snapshots are`} free. For snapshot ${next}, get the ${PASS_PLAN}.`,
     };
   }
 
@@ -187,7 +187,7 @@ export default function Snapshot() {
         {needsPass ? (
           <s-banner tone="info" heading="Your free snapshot is used">
             <s-paragraph>
-              The Reinstatement Pass ($39 once, 60 days) gives a snapshot for every review request and unlimited scans.{" "}
+              {`The ${PASS_PLAN} ($${PASS_PRICE_USD} once, ${PASS_DAYS} days) gives a snapshot for every review request and unlimited scans.`}{" "}
               <s-link href="/app/pass">See the pass</s-link>
             </s-paragraph>
           </s-banner>

@@ -15,7 +15,7 @@ Thứ tự làm: **A → B → C → D → E → F**. Phần A và B mất kho�
    - Số điện thoại: số của bạn. Bạn tự nhập.
 4. Bấm Save.
 
-## B. Payouts (không chặn việc nộp app, nhưng cần có để nhận tiền $39)
+## B. Payouts (không chặn việc nộp app, nhưng cần có để nhận tiền $29)
 1. **Organization settings → Payouts → Add payout method**.
 2. Shopify trả tiền qua Hyperwallet (ngân hàng hoặc PayPal). Nếu Shopify yêu cầu xác minh danh tính thì bấm **Update verification**. Có thể sẽ phải khai thông tin thuế.
 3. Bước này toàn là thông tin cá nhân và tài chính, nên chỉ bạn làm. Claude không nhìn và không điền.
@@ -53,7 +53,7 @@ Lời thoại tiếng Anh nằm trong dấu ngoặc kép. Đoạn nào cần gõ
 | 6 | (Pause) Mở tab admin → **Online Store → Pages → Add page**, tiêu đề **About us**, gõ một câu → Save. (Resume) | "Now I fix one issue in the store: I add an About page." |
 | 7 | Quay lại app → **Before you request a review** → chọn một issue label → **I'm about to request a review**. Danh sách **"Changes made since …"** có dòng "About page exists". | "Right before asking Google for a review, the merchant takes a snapshot. The app scans again and lists which checks changed since the first full scan." |
 | 8 | Bấm **Open your review kit** → **Copy**, rồi **Download .txt**. | "The review kit has what changed, what is still flagged, and earlier requests. The merchant can copy it or download it as a text file." |
-| 9 | Về app home: dòng "0 of 3 free scans left" hiện ra. Mở **Reinstatement Pass** → **Get the pass** → trang **Approve charge** của Shopify ("You will not be billed for this test charge") → **Approve** (bạn tự bấm). | "The free plan includes every finding, three scans every thirty days, and the first snapshot. The Reinstatement Pass is a one-time charge through Shopify Billing. On a development store it's a test charge." |
+| 9 | Về app home: dòng "0 of 3 free scans left" hiện ra. Mở **Review Pass** → **Get the pass** → trang **Approve charge** của Shopify ("You will not be billed for this test charge") → **Approve** (bạn tự bấm). | "The free plan includes every finding, three scans every thirty days, and the first snapshot. The Review Pass is a one-time charge through Shopify Billing. On a development store it's a test charge." |
 | 10 | Trang hiện **"Your pass is active until …"** → về app home → **Scan my store** chạy được. | "With the pass, scans and snapshots are unlimited for sixty days. A refund can be requested on this page within seven days." |
 | 11 | Admin → **Settings → Apps** → Fixlog → **Uninstall**. | "Uninstalling deletes the saved storefront password, and Shopify's shop redact webhook deletes the rest of the shop's data. Thanks for reviewing." |
 
@@ -83,7 +83,7 @@ Mở: Dev Dashboard → Apps → **Fixlog** → trang **App Store review / Distr
 | Screenshots | 5 file trong `docs/listing/screenshots/`, theo thứ tự 1→5, với alt text bên dưới |
 | Demo store URL | bỏ trống (store dev có password) |
 | Search terms | `merchant center suspended`, `misrepresentation`, `website needs improvement`, `google shopping policy`, `gmc compliance` |
-| Pricing | 2 gói: **Free** (every finding of every scan, 3 scans per 30 days, first pre-review snapshot and review kit, review history) và **Reinstatement Pass**, one-time **$39** (60 days of unlimited scans, a snapshot and review kit for every review request). Không ghi giá ở bất kỳ chỗ nào khác. |
+| Pricing | 2 gói: **Free** (every finding of every scan, 3 scans per 30 days, first pre-review snapshot and review kit, review history) và **Review Pass**, one-time **$29** (60 days of unlimited scans, a snapshot and review kit for every review request). Không ghi giá ở bất kỳ chỗ nào khác. |
 | Category / tags | chọn category gần nhất với Google Shopping / Merchant Center. Form có định nghĩa từng category; chọn theo chức năng chính là kiểm tra storefront. |
 | Install requirements | yêu cầu sales channel **Online Store** (app đọc storefront công khai). Không giới hạn quốc gia. |
 | Privacy policy URL | `https://fixlog.me/privacy` |

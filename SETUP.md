@@ -101,15 +101,15 @@ Render free tắt server sau 15 phút không có ai truy cập; lần mở sau p
 - Chạy "AI self-review" trên trang nộp app, rồi nộp.
 - **Đừng nộp lại khi đang chờ duyệt:** nộp lại sẽ bị đẩy xuống cuối hàng. Thời gian duyệt năm 2026 có lúc từ 2 tuần đến khoảng 3 tháng.
 
-## 9. Thu tiền: Reinstatement Pass $39 [đã có code]
-Code đã xong: trang "Reinstatement Pass" trong app, mua một lần qua Shopify Billing, mở khóa 60 ngày. Bản miễn phí: 3 lần scan mỗi 30 ngày và snapshot đầu tiên.
+## 9. Thu tiền: Review Pass $29 [đã có code]
+Code đã xong: trang "Review Pass" trong app, mua một lần qua Shopify Billing, mở khóa 60 ngày. Bản miễn phí: 3 lần scan mỗi 30 ngày và snapshot đầu tiên.
 1. **Bật Public distribution (bắt buộc, kể cả để test), nhưng chỉ trên app PRODUCTION:** Dev Dashboard (hoặc Partner Dashboard) → app → **Distribution** → chọn **Public distribution / Shopify App Store**. Không có bước này, Shopify báo "Apps without a public distribution cannot use the Billing API". ⚠️ Chọn rồi không đổi được.
    **Đừng chọn trên app dev hiện tại** (tên "Long Nguyen", client_id `414f8f…`). App đó có `automatically_update_urls_on_dev = true`: mỗi lần `npm run dev`, Shopify đổi URL của app sang tunnel trên máy bạn. Nếu nó là app trên App Store thì khách thật sẽ bị hỏng app mỗi khi bạn chạy dev. Shopify khuyên tách app dev và app production ([Manage app config files](https://shopify.dev/docs/apps/build/cli-for-apps/manage-app-config-files)). Thứ tự đúng: tạo app production → Claude cấu hình cho nó chạy trên Render → chọn Public distribution trên app production → test mua trên dev store.
-2. **Test trên dev store:** mở app → Reinstatement Pass → "Get the pass for $39" → Shopify hiện trang duyệt → Approve. Dev store chỉ tạo giao dịch test, không mất tiền. Quay lại app phải thấy "Your pass is active until …".
+2. **Test trên dev store:** mở app → Review Pass → "Get the pass for $29" → Shopify hiện trang duyệt → Approve. Dev store chỉ tạo giao dịch test, không mất tiền. Quay lại app phải thấy "Your pass is active until …".
 3. **Nhận tiền thật:** Partner Dashboard → **Payouts**: tài khoản ngân hàng và form thuế (W-9 hoặc W-8BEN). Đăng ký chương trình 0% revenue share cho $1 triệu đầu tiên.
 4. **Tiền thật chỉ về sau khi app được duyệt lên App Store.** Store thật thì tự tạo charge thật; dev store luôn là test. `BILLING_TEST=true` ép mọi charge thành test, nhưng **chỉ khi chạy local** (`npm run dev`). Trên Render (`NODE_ENV=production`) biến này bị bỏ qua, để một charge test không bao giờ mở khóa Pass cho store thật.
 5. **Hoàn tiền 7 ngày (bạn phải làm tay, hứa với khách là trong 3 ngày làm việc):** khách bấm "Request a refund" trong trang Pass → pass hết hiệu lực ngay và một dòng `RefundRequest` được lưu (Render logs có dòng `[refund] requested shop=…`). Shopify **không** tự hoàn tiền và **không** báo cho khách, nên:
    - Mỗi ngày làm việc chạy `cd C:\dev\ad-project\gmc-app` rồi `npm run refunds` (cần `TURSO_DATABASE_URL` + `TURSO_AUTH_TOKEN` trong `.env` để đọc DB production; nhớ cảnh báo ở mục 5: dev lúc đó cũng dùng DB production).
-   - Với mỗi dòng "NOT YET": Partner Dashboard → **Stores** (hoặc Apps → app → History) → tìm store → charge "Reinstatement Pass" → **Details** → **Issue refund**. Nếu charge chưa thanh toán thì Shopify cho **credit** thay vì refund.
+   - Với mỗi dòng "NOT YET": Partner Dashboard → **Stores** (hoặc Apps → app → History) → tìm store → charge "Review Pass" (charge test cũ tên "Reinstatement Pass") → **Details** → **Issue refund**. Nếu charge chưa thanh toán thì Shopify cho **credit** thay vì refund.
    - Xong thì `npm run refunds -- --mark <id>`. Dòng có `TEST` là mua thử trên dev store: không có tiền để trả, chỉ cần mark.
    - Mỗi store chỉ được hoàn 1 lần (code tự chặn). Hoàn tiền là cho công cụ, không phụ thuộc Google quyết định gì, nên không bao giờ hỏi "Google có duyệt không" trước khi hoàn.

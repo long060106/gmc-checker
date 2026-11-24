@@ -1,4 +1,4 @@
-// Reads the shop's Reinstatement Pass from Shopify (the source of truth for what was paid),
+// Reads the shop's Review Pass from Shopify (the source of truth for what was paid),
 // and counts the shop's recent scans for the free limit. Rules live in ./pass.ts.
 import prisma from "../db.server";
 import { billingTestMode, freeWindowStart, passFromPurchases, type PassStatus, type Purchase } from "./pass";
@@ -7,7 +7,7 @@ import { billingTestMode, freeWindowStart, passFromPurchases, type PassStatus, t
 type AdminGraphql = { graphql: (query: string) => Promise<Response> };
 
 const PASS_QUERY = `#graphql
-  query ReinstatementPass {
+  query ReviewPass {
     shop { plan { partnerDevelopment } }
     currentAppInstallation {
       oneTimePurchases(first: 25, reverse: true) {

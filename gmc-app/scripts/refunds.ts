@@ -1,4 +1,4 @@
-// Refund requests for the Reinstatement Pass (the 7-day in-app refund).
+// Refund requests for the Review Pass (the 7-day in-app refund).
 // The pass already ended when the merchant asked; this list is what's left to do by hand.
 //
 //   npm run refunds                   → list requests not yet refunded
@@ -6,7 +6,7 @@
 //   npm run refunds -- --mark <id>    → record that you issued the refund in the Partner Dashboard
 //
 // Refund steps: Partner Dashboard → Stores (or Apps → this app → History) → find the store →
-// the "Reinstatement Pass" charge → Issue refund (or credit, if the charge is still unpaid).
+// the "Review Pass" charge (older test charges are named "Reinstatement Pass") → Issue refund (or credit, if the charge is still unpaid).
 // Shopify doesn't notify the merchant, so the in-app message is the only notice they get.
 // Uses TURSO_DATABASE_URL from .env if set, i.e. the PRODUCTION database.
 import { createPrismaClient } from "../app/db.server";
