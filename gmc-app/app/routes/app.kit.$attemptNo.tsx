@@ -8,16 +8,17 @@ import { boundary } from "@shopify/shopify-app-react-router/server";
 import { authenticate } from "../shopify.server";
 import { loadKit } from "../lib/kit.server";
 import { buildKitText } from "../lib/kit";
+import { shopTimeZone } from "../lib/shop-timezone.server";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
-  const { session } = await authenticate.admin(request);
+  const { session, admin } = await authenticate.admin(request);
   const attemptNo = Number(params.attemptNo);
-  const kit = await loadKit(session.shop, attemptNo);
+  const [kit, timeZone] = await Promise.all([loadKit(session.shop, attemptNo), shopTimeZone(admin)]);
   if (!kit) return { found: false as const, attemptNo };
   return {
     found: true as const,
     attemptNo,
-    text: buildKitText(kit),
+    text: buildKitText(kit, timeZone),
     fixedCount: kit.fixed.length,
     flaggedCount: kit.stillFlagged.length,
     compared: kit.baselineAt !== null,

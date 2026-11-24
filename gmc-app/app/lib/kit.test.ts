@@ -46,4 +46,10 @@ describe("buildKitText", () => {
     }
     expect(t).toContain("google alone decides");
   });
+
+  it("dates the request in the store's time zone", () => {
+    // Made at 8:30 pm on Nov 23 in New York, which is already Nov 24 in UTC.
+    const t = buildKitText({ ...base, requestedAt: "2026-11-24T01:30:00.000Z" }, "America/New_York");
+    expect(t).toContain("Request #2, prepared 2026-11-23");
+  });
 });

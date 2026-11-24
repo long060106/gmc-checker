@@ -15,11 +15,13 @@ import { FREE_ATTEMPTS, PASS_DAYS, PASS_PLAN, PASS_PRICE_USD, snapshotAllowed } 
 import { canBeBaseline, diffScans, isBlockedScan } from "../engine/diff";
 import { CHECK_INFO } from "../engine/run";
 import { LABELS } from "../lib/labels";
+import { shortDateIn } from "../lib/dates";
+import { shopTimeZone } from "../lib/shop-timezone.server";
 
 const OUTCOME: Record<string, string> = { pending: "Waiting", reinstated: "Reinstated", rejected: "Rejected", unknown: "Unknown" };
 
-const fmtDate = (d: Date | string) =>
-  new Date(d).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
+// Dates are formatted on the server in the store's time zone, so the page, the copied
+// summary and the review kit all show the same day.
 const title = (id: string) => CHECK_INFO[id]?.title ?? id;
 
 /** Number of the next review attempt for this shop (1 if none recorded yet). */
@@ -37,7 +39,7 @@ async function nextAttemptNo(shop: string): Promise<number> {
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { session, admin } = await authenticate.admin(request);
   const profile = await prisma.shopProfile.findUnique({ where: { shop: session.shop } });
-  const [attempts, { pass }] = await Promise.all([
+  const [attempts, { pass }, timeZone] = await Promise.all([
     profile?.shopKey
       ? prisma.reviewAttempt.findMany({
           where: { shopKey: profile.shopKey },
@@ -46,10 +48,11 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
         })
       : Promise.resolve([]),
     getPass(admin, session.shop),
+    shopTimeZone(admin),
   ]);
   const next = (attempts[0]?.attemptNo ?? 0) + 1;
   return {
-    attempts: attempts.map((a) => ({ ...a, requestedAt: a.requestedAt.toISOString() })),
+    attempts: attempts.map(({ requestedAt, ...a }) => ({ ...a, date: shortDateIn(requestedAt, timeZone) })),
     needsPass: !snapshotAllowed(next, pass),
   };
 };
@@ -61,6 +64,7 @@ type ActionResult =
       attemptNo: number;
       firstScan: boolean;
       comparable: boolean;
+      /** Already formatted in the store's time zone. */
       baselineDate: string;
       fixed: string[];
       regressed: string[];
@@ -76,7 +80,11 @@ export const action = async ({ request }: ActionFunctionArgs): Promise<ActionRes
   const consent = form.get("consent") === "on";
 
   // 0. The first snapshot is free; later ones need the Review Pass. Checked before scanning.
-  const [{ pass }, next] = await Promise.all([getPass(admin, session.shop), nextAttemptNo(session.shop)]);
+  const [{ pass }, next, timeZone] = await Promise.all([
+    getPass(admin, session.shop),
+    nextAttemptNo(session.shop),
+    shopTimeZone(admin),
+  ]);
   if (!snapshotAllowed(next, pass)) {
     return {
       ok: false,
@@ -138,7 +146,7 @@ export const action = async ({ request }: ActionFunctionArgs): Promise<ActionRes
   });
 
   const lines = [
-    `Changes made since ${fmtDate(baseline.createdAt)}:`,
+    `Changes made since ${shortDateIn(baseline.createdAt, timeZone)}:`,
     ...(d.fixed.length ? d.fixed.map((id) => `- ${title(id)}`) : ["- (none detected by the storefront check)"]),
   ];
   if (d.stillFailing.length) lines.push("", "Still flagged by the storefront check:", ...d.stillFailing.map((id) => `- ${title(id)}`));
@@ -148,7 +156,7 @@ export const action = async ({ request }: ActionFunctionArgs): Promise<ActionRes
     attemptNo,
     firstScan,
     comparable,
-    baselineDate: baseline.createdAt.toISOString(),
+    baselineDate: shortDateIn(baseline.createdAt, timeZone),
     fixed: d.fixed,
     regressed: d.regressed,
     stillFlagged: d.stillFailing,
@@ -248,7 +256,7 @@ export default function Snapshot() {
             ) : !result.comparable ? (
               <s-banner tone="info">
                 <s-paragraph>
-                  The checks were updated since your baseline scan on {fmtDate(result.baselineDate)}, so a before/after
+                  The checks were updated since your baseline scan on {result.baselineDate}, so a before/after
                   comparison isn't available this time. The list below shows what is still flagged now.
                 </s-paragraph>
               </s-banner>
@@ -293,7 +301,7 @@ export default function Snapshot() {
               {attempts.map((a) => (
                 <s-table-row key={a.attemptNo}>
                   <s-table-cell>{a.attemptNo}</s-table-cell>
-                  <s-table-cell>{fmtDate(a.requestedAt)}</s-table-cell>
+                  <s-table-cell>{a.date}</s-table-cell>
                   <s-table-cell>{LABELS[a.label] ?? a.label}</s-table-cell>
                   <s-table-cell>{OUTCOME[a.outcome] ?? a.outcome}</s-table-cell>
                   <s-table-cell>
