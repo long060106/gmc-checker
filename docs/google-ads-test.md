@@ -17,7 +17,7 @@ Số liệu Ubersuggest, Mỹ, đọc ngày 2026-11-16. Đây là **một nguồ
 **Ý nghĩa:**
 - Với ~$21 mỗi click, $50 chỉ mua được khoảng **2 click**. Không thể đo 60 scan bằng số tiền đó.
 - Cả nhóm từ khóa chỉ khoảng **170 lượt tìm mỗi tháng** ở Mỹ. Ít người tìm, và nhiều agency đang trả giá cao (họ bán dịch vụ $450+).
-- **Bài toán tiền:** giả sử cứ 10 click có 1 người mua Pass $39, thì mỗi khách tốn khoảng $210 tiền quảng cáo. Với giá $39, quảng cáo tìm kiếm ở mức giá này **không bao giờ hòa vốn**.
+- **Bài toán tiền:** giả sử cứ 10 click có 1 người mua Pass $29, thì mỗi khách tốn khoảng $210 tiền quảng cáo. Với giá $29, quảng cáo tìm kiếm ở mức giá này **không bao giờ hòa vốn**.
 
 **Test hợp lý duy nhất là một test hỏi giá:** "Có click nào rẻ hơn $3 không?" Đặt giới hạn $3 mỗi click và tổng tối đa $50. Kết quả có hai khả năng:
 - **Gần như không có click:** quảng cáo tìm kiếm đóng ở giá này. Bạn mất rất ít tiền, có khi $0.
@@ -66,7 +66,7 @@ Chưa sửa bước 0 thì **đừng chạy quảng cáo, đừng đăng link �
 
 **Quyết định:**
 - Nếu có ít nhất 2 từ khóa có giá thấp (low range) **≤ $5** → làm bước 2.
-- Nếu tất cả đều > $5 → **dừng**. Quảng cáo tìm kiếm không hợp với giá $39. Chuyển sức sang listing App Store (SETUP mục 8) và forum.
+- Nếu tất cả đều > $5 → **dừng**. Quảng cáo tìm kiếm không hợp với giá $29. Chuyển sức sang listing App Store (SETUP mục 8) và forum.
 
 Gửi Claude ảnh chụp bảng Keyword Planner để chốt.
 
@@ -124,4 +124,4 @@ Giao diện Google Ads hay đổi chữ. Nếu không thấy đúng tên nút, t
 | ≥ 15 click, ≤ $50, và ≥ 5 scan có tag `gads` | Có click rẻ, có người dùng thử. Xem tiếp tỉ lệ "đang bị suspend" và waitlist trong `npm run stats`. |
 | Nhiều click nhưng gần như không có scan | Người click không phải khách đúng, hoặc trang tải chậm. Kiểm tra lại bước 0 và báo cáo Search terms. |
 
-Nhớ: $39 không bao giờ hòa vốn ở giá ~$20 mỗi click. Test này chỉ để biết có click rẻ hay không, không phải để tìm cách kiếm tiền bằng quảng cáo.
+Nhớ: $29 không bao giờ hòa vốn ở giá ~$20 mỗi click. Test này chỉ để biết có click rẻ hay không, không phải để tìm cách kiếm tiền bằng quảng cáo.

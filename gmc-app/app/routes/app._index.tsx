@@ -303,7 +303,7 @@ export default function Index() {
       {result && !result.ok && "limit" in result && result.limit ? (
         <s-banner tone="warning" heading="Free scans used up">
           <s-paragraph>
-            {result.error} The Reinstatement Pass gives unlimited scans for 60 days.{" "}
+            {result.error} The Review Pass gives unlimited scans for 60 days.{" "}
             <s-link href="/app/pass">See the pass</s-link>
           </s-paragraph>
         </s-banner>
@@ -395,7 +395,7 @@ export default function Index() {
         <s-link href="/app/snapshot">Take a pre-review snapshot</s-link>
       </s-section>
 
-      <s-section slot="aside" heading={passActive ? "Reinstatement Pass" : "Free plan"}>
+      <s-section slot="aside" heading={passActive ? "Review Pass" : "Free plan"}>
         <s-paragraph>
           {passActive && passUntil
             ? `Active until ${fmtDate(passUntil)}: unlimited scans and snapshots.`

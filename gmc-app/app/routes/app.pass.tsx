@@ -1,4 +1,4 @@
-// Reinstatement Pass: $39 one time, 60 days. Charged through Shopify Billing (App Store rule 1.2.1).
+// Review Pass: $29 one time, 60 days. Charged through Shopify Billing (App Store rule 1.2.1).
 // Copy rules: say what it unlocks, never that it improves the odds. Google alone decides.
 // Refund: within 7 days, once per store, for the tool (never tied to the review outcome).
 // Asking ends the pass at once; the money goes back manually from the Partner Dashboard (see SETUP.md §9).

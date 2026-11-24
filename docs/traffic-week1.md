@@ -18,7 +18,7 @@ Kế hoạch Step 6 giả định: trả lời forum kèm link `/scan`, rồi đ
 **Hệ quả:**
 1. Trả lời trên các board thường **không đo được bằng số scan** (không có link). Nó chỉ xây uy tín và để lại câu trả lời cho người tìm Google sau này. Vẫn đáng làm, nhưng ít, và phải thật sự có ích.
 2. Ngưỡng hủy "< 30 scan sau ≥ 20 câu trả lời" **không còn ý nghĩa** với kênh không được gắn link. Chỉ tính các kênh có link: Ask and Offer, Reddit (nếu sub cho phép), Google Ads.
-3. Kênh đo được rõ nhất là **listing trên App Store** (SETUP mục 8) và board **Ask and Offer**. Google Ads quá đắt cho giá $39 (mục 4).
+3. Kênh đo được rõ nhất là **listing trên App Store** (SETUP mục 8) và board **Ask and Offer**. Google Ads quá đắt cho giá $29 (mục 4).
 
 ## 1. Link có gắn tag: luôn dùng link này, không dùng link trần
 
@@ -96,7 +96,7 @@ Link: https://community.shopify.com/t/657684
 >
 > What it can't do: see your Merchant Center account, product feed or verification status, or tell you whether you'll be reinstated. Only Google decides that. A clean report means the public criteria it checks look fine, nothing more.
 >
-> Cost: the web check is free. A Shopify app version is coming with a paid one-time pass ($39) for tracking fixes across review requests; the free check stays free.
+> Cost: the web check is free. A Shopify app version is coming with a paid one-time pass ($29) for tracking fixes across review requests; the free check stays free.
 >
 > If it flags something that's wrong for your store, reply here and I'll fix the check.
 

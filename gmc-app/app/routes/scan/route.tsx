@@ -164,7 +164,7 @@ async function joinWaitlist(form: FormData) {
     : { outcomeEmailOptIn: false, outcomeEmailSendAfter: null, outcomeToken: null };
 
   try {
-    const fields = { scanId, suspended, label, priceShown: 3900, ...outcome };
+    const fields = { scanId, suspended, label, priceShown: 2900, ...outcome };
     await prisma.waitlistEntry.upsert({
       where: { email },
       create: { email, ...fields },
@@ -318,7 +318,7 @@ function Waitlist({ scanId }: { scanId: string }) {
       </label>
 
       <div className={styles.priceBox}>
-        <strong>Reinstatement Pass — $39 one-time when it launches.</strong> Not for sale yet. Join the waitlist and
+        <strong>Review Pass — $29 one-time when it launches.</strong> Not for sale yet. Join the waitlist and
         we'll email you when it's available.
       </div>
 

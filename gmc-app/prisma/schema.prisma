@@ -135,7 +135,7 @@ model AppScanDetail {
   @@index([shop, createdAt])
 }
 
-// App-only: a merchant asked for their Reinstatement Pass money back (7-day refund promise).
+// App-only: a merchant asked for their Review Pass money back (7-day refund promise).
 // Asking revokes the pass at once; Long then issues the refund in the Partner Dashboard and runs
 // `npm run refunds -- --mark <id>`. Deleted on shop/redact.
 model RefundRequest {

@@ -40,7 +40,7 @@ merchant center suspended · misrepresentation · website needs improvement · g
 
 ## Pricing section
 - **Free:** every finding of every scan, 3 scans per 30 days, the first pre-review snapshot and review kit, review history.
-- **Reinstatement Pass, $39 one-time (60 days):** unlimited scans, a snapshot and review kit for every review request. No subscription; charged once through Shopify Billing. 7-day refund from inside the app, once per store (a refund for the tool, not tied to Google's decision).
+- **Review Pass, $29 one-time (60 days):** unlimited scans, a snapshot and review kit for every review request. No subscription; charged once through Shopify Billing. 7-day refund from inside the app, once per store (a refund for the tool, not tied to Google's decision).
 - In the Partner Dashboard pricing form, list both. The app code is in `gmc-app/app/lib/pass.ts` (limits) and `app/routes/app.pass.tsx` (purchase page).
 
 ## Screenshots (3–6, 1600×900, no PII, no prices, no outcome promises)
