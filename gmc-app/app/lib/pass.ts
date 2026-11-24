@@ -70,6 +70,20 @@ export function refundable(pass: PassStatus, priorRefunds: number, now: Date = n
   return pass.active && priorRefunds === 0 && now.getTime() - Date.parse(pass.purchasedAt) < REFUND_DAYS * DAY_MS;
 }
 
+/**
+ * Whether this shop's charges are test charges (and whether test purchases unlock the pass).
+ * Development stores always use test charges. BILLING_TEST=true forces test charges everywhere, but only
+ * outside production: on the live server a test charge must never unlock a real store.
+ */
+export function billingTestMode(
+  partnerDevelopment: boolean,
+  env: Readonly<Record<string, string | undefined>> = process.env,
+): boolean {
+  if (partnerDevelopment) return true;
+  if (env.NODE_ENV === "production") return false;
+  return env.BILLING_TEST?.trim() === "true";
+}
+
 /** Start of the rolling window for counting free scans. */
 export function freeWindowStart(now: Date = new Date()): Date {
   return new Date(now.getTime() - FREE_WINDOW_DAYS * DAY_MS);

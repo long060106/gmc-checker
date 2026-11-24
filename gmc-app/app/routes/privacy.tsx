@@ -26,7 +26,7 @@ export default function Privacy() {
   return (
     <main style={wrap}>
       <h1>Privacy policy</h1>
-      <p>Last updated: November 21, 2026.</p>
+      <p>Last updated: November 23, 2026.</p>
       <p>
         This policy covers Fixlog: the free storefront check at <Link to="/scan">/scan</Link> with its waitlist, and
         the Fixlog app for Shopify. We collect as little as we can.
@@ -88,9 +88,12 @@ export default function Privacy() {
         </li>
       </ul>
       <p>
-        <strong>Sharing outcomes is opt-in.</strong> Only if you tick &quot;Share my anonymized fixes and
-        outcome&quot; do we use that request (which checks changed and the outcome, without your store address) in
-        aggregate statistics, and we only publish numbers for groups of at least 5 stores.
+        <strong>Sharing outcomes is opt-in.</strong> Only if you tick &quot;Let Fixlog include my fixes and review
+        outcome in combined statistics&quot; do we use that request (which checks changed and the outcome, without your
+        store address) in aggregate statistics, and we only publish numbers for groups of at least 5 stores. In our
+        database your store is identified by a keyed hash of its address rather than the address itself. That makes
+        the data pseudonymous, not anonymous: we could still match it to your store, and we delete it when Shopify
+        asks us to erase your shop&apos;s data.
       </p>
       <p>
         We do not collect any data about your store&apos;s customers, orders or payments, in the app or on the web
