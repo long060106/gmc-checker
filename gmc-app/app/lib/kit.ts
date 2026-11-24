@@ -1,6 +1,7 @@
 // Review request kit: a dated, plain-text record of one review request, built from the
 // pre-review snapshot. Pure function so it can be tested. Wording rules: it records changes
 // to the public storefront; it never predicts or promises an outcome. Google alone decides.
+import { dayIn } from "./dates";
 
 export interface KitFixed {
   checkId: string;
@@ -39,10 +40,9 @@ const OUTCOME: Record<string, string> = {
   unknown: "unknown",
 };
 
-/** YYYY-MM-DD: unambiguous in every locale. */
-const day = (iso: string) => iso.slice(0, 10);
-
-export function buildKitText(k: KitInput): string {
+/** Dates are YYYY-MM-DD in `timeZone`, the store's zone (see ./shop-timezone.server.ts). */
+export function buildKitText(k: KitInput, timeZone = "UTC"): string {
+  const day = (iso: string) => dayIn(iso, timeZone);
   const out: string[] = [];
   out.push("REVIEW REQUEST RECORD");
   out.push(`Store: ${k.store}`);
