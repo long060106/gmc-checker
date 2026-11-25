@@ -14,9 +14,11 @@ import { countRecentScans, getPass } from "../lib/pass.server";
 import { FREE_SCANS, FREE_WINDOW_DAYS, PASS_PRICE_USD, REFUND_DAYS, scansLeft, snapshotAllowed } from "../lib/pass";
 import { CHECK_INFO, type CheckInfo } from "../engine/run";
 import type { Finding, Status } from "../engine/types";
+import { ALL_PASS_NOTE, allPassed, checkSummary, COOLDOWN, REVIEW_TIME } from "../lib/wording";
 
 const DAY = 24 * 3600_000;
-const ASK_AFTER_DAYS = 10; // Google says reviews take 7 business days, up to 2 weeks
+// Google says reviews take 7 business days, up to 2 weeks. Same 14 days as the /scan follow-up email.
+const ASK_AFTER_DAYS = 14;
 const SNOOZE_DAYS = 7; // "Still waiting" hides the question for a week
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
@@ -150,12 +152,6 @@ const TONE: Record<Status, "success" | "warning" | "critical" | "neutral"> = {
 const BADGE: Record<Status, string> = { pass: "Pass", warn: "Check", fail: "Fix", na: "Not checked" };
 const fmtDate = (iso: string) => new Date(iso).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
 
-function summary(statuses: Status[]) {
-  const checked = statuses.filter((s) => s !== "na");
-  const passed = checked.filter((s) => s === "pass").length;
-  return `${passed} of ${checked.length} checks passed`;
-}
-
 function FindingList({ findings }: { findings: Finding[] }) {
   return (
     <>
@@ -267,13 +263,13 @@ export default function Index() {
         <s-banner tone="warning" heading={`Google didn't reinstate you after request #${rejected.attemptNo}`}>
           <s-stack direction="block" gap="base">
             <s-paragraph>
-              We can&apos;t know Google&apos;s reasons; Merchant Center&apos;s issue details are the only official word.{" "}
+              We can&apos;t know Google&apos;s reasons; only Merchant Center&apos;s issue details come from Google.{" "}
               {rejected.stillFlagged > 0
                 ? `In the snapshot for that request, our storefront check still flagged ${rejected.stillFlagged} ${rejected.stillFlagged === 1 ? "item" : "items"}. Those are the first place to look.`
                 : "In the snapshot for that request, every storefront criterion we check passed, so the cause may be outside the storefront: product data, the feed, or account verification."}{" "}
               {rejected.attemptNo === 1
-                ? "If the next review is also unsuccessful, a cool-down can start, so make the next request count."
-                : "Merchant Center may show a cool-down before you can ask again."}
+                ? "If issues still aren't resolved by your next review, Google says a one-week cool-down may begin, so make the next request count."
+                : "Merchant Center may show a cool-down before you can ask again, and Google says it may get longer with each unsuccessful review."}
             </s-paragraph>
             <s-stack direction="inline" gap="base">
               <s-button href={`/app/kit/${rejected.attemptNo}`}>Open kit #{rejected.attemptNo}</s-button>
@@ -342,23 +338,25 @@ export default function Index() {
 
       {findings && result?.ok ? (
         <>
-          <s-section heading={summary(findings.map((f) => f.status))}>
+          <s-section heading={checkSummary(findings.map((f) => f.status))}>
             <s-paragraph>
               Scanned {result.origin} on {fmtDate(result.createdAt)}. Each finding links to the Google help page it comes
               from.
             </s-paragraph>
+            {allPassed(findings.map((f) => f.status)) ? <s-paragraph>{ALL_PASS_NOTE}</s-paragraph> : null}
           </s-section>
           <FindingList findings={findings} />
         </>
       ) : latest?.findings ? (
         <>
-          <s-section heading={`Last scan, ${fmtDate(latest.createdAt)}: ${summary(latest.findings.map((f) => f.status))}`}>
+          <s-section heading={`Last scan (${fmtDate(latest.createdAt)}) · ${checkSummary(latest.findings.map((f) => f.status))}`}>
             <s-paragraph>Scan again after you change something to see the new result.</s-paragraph>
+            {allPassed(latest.findings.map((f) => f.status)) ? <s-paragraph>{ALL_PASS_NOTE}</s-paragraph> : null}
           </s-section>
           <FindingList findings={latest.findings} />
         </>
       ) : latest ? (
-        <s-section heading={`Last scan, ${fmtDate(latest.createdAt)}: ${summary(Object.values(latest.results))}`}>
+        <s-section heading={`Last scan (${fmtDate(latest.createdAt)}) · ${checkSummary(Object.values(latest.results))}`}>
           <s-paragraph>Scan again to see the evidence and where to fix each item.</s-paragraph>
           <LatestStatuses results={latest.results} />
         </s-section>
@@ -388,9 +386,10 @@ export default function Index() {
       ) : null}
 
       <s-section slot="aside" heading="Before you request a review">
+        <s-paragraph>{`${REVIEW_TIME} ${COOLDOWN}`}</s-paragraph>
         <s-paragraph>
-          Each failed review can cost a week or more of waiting. When you've made your fixes, take a snapshot: it records
-          which checks changed since your first scan, so you can list them in your request.
+          When you&apos;ve made your fixes, take a snapshot: a fresh scan compared with your first one. Fixlog turns it into
+          a review kit, a dated record of what changed that you can use in your review request.
         </s-paragraph>
         <s-link href="/app/snapshot">Take a pre-review snapshot</s-link>
       </s-section>

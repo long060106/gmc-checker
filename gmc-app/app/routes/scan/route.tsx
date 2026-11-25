@@ -14,6 +14,7 @@ import type { Finding, Status } from "../../engine/types";
 import { shopKey } from "../../lib/shopkey.server";
 import { clientIp, rateLimit } from "../../lib/ratelimit.server";
 import { LABELS } from "../../lib/labels";
+import { ALL_PASS_NOTE, allPassed } from "../../lib/wording";
 
 import styles from "./styles.module.css";
 
@@ -214,16 +215,25 @@ function Report({ origin, findings, scanId }: { origin: string; findings: Findin
   const notChecked = findings.filter((f) => f.status === "na");
   const rank: Record<Status, number> = { fail: 0, warn: 1, pass: 2, na: 3 };
 
+  // Same format as the app (lib/wording checkSummary): the total first, then each group.
   return (
     <section className={styles.report} aria-label="Scan report">
       <h2 className={styles.reportTitle}>Report for {new URL(origin).hostname}</h2>
       <p className={styles.summary}>
-        <strong>
-          {passed} of {applicable.length}
-        </strong>{" "}
-        checks passed · <span className={styles.failText}>{toFix} to fix</span> ·{" "}
-        <span className={styles.warnText}>{toCheck} to check</span>
+        <strong>{findings.length} checks:</strong> {passed} passed
+        {toFix > 0 && (
+          <>
+            , <span className={styles.failText}>{toFix} to fix</span>
+          </>
+        )}
+        {toCheck > 0 && (
+          <>
+            , <span className={styles.warnText}>{toCheck} to check</span>
+          </>
+        )}
+        {notChecked.length > 0 && <>, {notChecked.length} not checked</>}
       </p>
+      {allPassed(findings.map((f) => f.status)) && <p className={styles.muted}>{ALL_PASS_NOTE}</p>}
 
       {GROUP_ORDER.map((group) => {
         const items = applicable
@@ -245,6 +255,10 @@ function Report({ origin, findings, scanId }: { origin: string; findings: Findin
       {notChecked.length > 0 && (
         <details className={styles.naBlock}>
           <summary>Not checked ({notChecked.length})</summary>
+          <p className={styles.small}>
+            Each one says why it couldn&apos;t run. Some need details only you have, like your Merchant Center business
+            name or contact details.
+          </p>
           <ul className={styles.list}>
             {notChecked.map((f) => (
               <FindingRow key={f.checkId} f={f} />
@@ -281,8 +295,9 @@ function Waitlist({ scanId }: { scanId: string }) {
       <input type="hidden" name="scanId" value={scanId} />
       <h2 className={styles.waitlistTitle}>Track your fixes before you request a review</h2>
       <p className={styles.muted}>
-        The Shopify app (coming soon) re-scans right before you request a review and lists which checks changed since your
-        first scan, so you can paste the list into your review request and keep a record between attempts.
+        The Shopify app (coming soon) takes a snapshot right before you request a review: a fresh scan compared with your
+        first one. It turns what changed into a review kit, a dated record you can paste into your review request and
+        keep between attempts.
       </p>
 
       <fieldset className={styles.fieldset}>
@@ -327,8 +342,8 @@ function Waitlist({ scanId }: { scanId: string }) {
         <input type="email" name="email" required autoComplete="email" maxLength={254} placeholder="you@yourstore.com" />
       </label>
       <label className={styles.checkbox}>
-        <input type="checkbox" name="outcomeOptIn" /> Email me in 14 days so I can log whether I got reinstated (one
-        question, one click).
+        <input type="checkbox" name="outcomeOptIn" /> Email me in 14 days to ask how my review went (one question, one
+        click).
       </label>
       <p className={styles.small}>
         We use your email only for the launch email and, if you tick the box, the 14-day question. See our <Link to="/privacy">privacy policy</Link>.
@@ -347,7 +362,7 @@ function WaitlistThanks({ optedIn }: { optedIn: boolean }) {
       <h2 className={styles.waitlistTitle}>You're on the waitlist.</h2>
       <p>
         We'll email you when the Shopify app is available. Nothing is charged now.
-        {optedIn && " In 14 days we'll send one question asking whether you were reinstated."}
+        {optedIn && " In 14 days we'll send one question asking how your review went."}
       </p>
     </div>
   );
@@ -435,8 +450,10 @@ function Faq() {
       </p>
       <h3 className={styles.question}>What do you store?</h3>
       <p>
-        The result of each check (pass, fix or check) under a one-way hash of the store address. Not the page content,
-        and not the business name you type. See the <Link to="/privacy">privacy policy</Link>.
+        The result of each check (pass, fix or check), stored under a keyed hash of the store address instead of the
+        address itself. That makes it pseudonymous, not anonymous: we can tell whether a store we&apos;re given was
+        scanned before, but we can&apos;t list the stores. We don&apos;t store the page content or the business name you
+        type. See the <Link to="/privacy">privacy policy</Link>.
       </p>
     </section>
   );

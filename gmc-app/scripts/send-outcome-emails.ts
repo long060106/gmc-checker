@@ -1,5 +1,5 @@
 // Day-14 outcome email: one question, sent once to people who ticked
-// "Email me in 14 days so I can log whether I got reinstated" on /scan.
+// "Email me in 14 days to ask how my review went" on /scan.
 //
 //   npm run outcome:send            → DRY RUN (default): prints who would get what, sends nothing
 //   npm run outcome:send -- --send  → really sends (needs the env vars below)

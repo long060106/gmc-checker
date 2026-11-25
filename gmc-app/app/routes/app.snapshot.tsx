@@ -16,6 +16,7 @@ import { canBeBaseline, diffScans, isBlockedScan } from "../engine/diff";
 import { CHECK_INFO } from "../engine/run";
 import { LABELS } from "../lib/labels";
 import { shortDateIn } from "../lib/dates";
+import { COOLDOWN } from "../lib/wording";
 import { shopTimeZone } from "../lib/shop-timezone.server";
 
 const OUTCOME: Record<string, string> = { pending: "Waiting", reinstated: "Reinstated", rejected: "Rejected", unknown: "Unknown" };
@@ -188,9 +189,9 @@ export default function Snapshot() {
     <s-page heading="Before you request a review">
       <s-section heading="Take a snapshot right before you ask Google">
         <s-paragraph>
-          Each unsuccessful review in Merchant Center can start a cool-down that grows with every attempt. This snapshot
-          re-scans your store and lists which checks changed since your first scan, so your request can say what you fixed.
-          It is a record of changes, not a prediction: Google alone decides.
+          {COOLDOWN} This snapshot re-scans your store and lists which checks changed since your first scan, so your
+          request can say what you fixed. Fixlog then turns it into your review kit: the text to paste or keep with your
+          request. It is a record of changes, not a prediction: Google alone decides.
         </s-paragraph>
         {needsPass ? (
           <s-banner tone="info" heading="Your free snapshot is used">
@@ -281,7 +282,7 @@ export default function Snapshot() {
               and Google&apos;s rule, and your earlier requests. Copy it or download it as a text file.
             </s-paragraph>
             <s-paragraph>
-              About 10 days from now we&apos;ll ask on the app home page whether Google reinstated you. One tap.
+              About 2 weeks from now we&apos;ll ask on the app home page how the review went. One tap.
             </s-paragraph>
           </s-stack>
         </s-section>

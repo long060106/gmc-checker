@@ -13,6 +13,8 @@ Rules this draft follows (App Store requirements, read 2026-11-09): name ≤ 30 
 
 New Merchant Center apps seen in the same searches (2026-11-16), not yet profiled: "Preflight Merchant Center Scan", "GMC Fix Map", "FeedFix: Merchant Center Fix".
 
+**Feedback 2026-11-25 (points 6 and 14), Long to decide:** a tester read "Fixlog" and "Fixlog – GMC Review Prep" as two names, and said merchants say "Google Shopping", not "GMC". The two-part name is normal on the App Store (brand + descriptor, Req 4.1.1). Option: "Fixlog – Merchant Center Prep" (28 characters) spells out GMC. Avoid "Google Shopping" in the name itself (Google's trademark); it is used in the details text below instead.
+
 ## App card subtitle (benefit, no keywords or stats)
 > Know what to fix and what changed before you request a review
 
@@ -25,7 +27,7 @@ New Merchant Center apps seen in the same searches (2026-11-16), not yet profile
 > Check your storefront against Google's Merchant Center website rules and track what you fix.
 
 ## App details (≤ 500)
-> Suspended by Merchant Center and the notice doesn't say why? Fixlog checks your public store pages against Google's published website, contact, policy and pricing rules. Every finding shows what we saw, the Google help page it comes from, and where to fix it in Shopify. Before you request a review, take a snapshot: a dated list of checks that changed since your first scan or your last review request. Independent tool, not affiliated with Google. Google alone decides on reviews.
+> Suspended in Google Merchant Center (Google Shopping) and the notice doesn't say why? Fixlog checks your public store pages against Google's published website, contact, policy and pricing rules. Every finding shows what we saw, the Google help page and where to fix it in Shopify. Before you request a review, take a snapshot: a fresh scan compared with your first. It becomes your review kit: a dated record of what changed. Independent tool, not affiliated with Google. Google alone decides.
 
 ## Feature list (≤ 80 each)
 - Check your storefront against website rules in Google's Merchant Center help
@@ -33,7 +35,7 @@ New Merchant Center apps seen in the same searches (2026-11-16), not yet profile
 - Pre-review snapshot: what changed since your first scan or last request
 - Review request kit: what changed, what's still flagged, your earlier requests
 - Dated history of your review requests and the outcomes you record
-- Reads only your storefront pages. No access to customers, orders or products
+- Requests no access scopes, so it can't read customers, orders or products
 
 ## Search terms (≤ 5)
 merchant center suspended · misrepresentation · website needs improvement · google shopping policy · gmc compliance
@@ -42,6 +44,11 @@ merchant center suspended · misrepresentation · website needs improvement · g
 - **Free:** every finding of every scan, 3 scans per 30 days, the first pre-review snapshot and review kit, review history.
 - **Review Pass, $29 one-time (60 days):** unlimited scans, a snapshot and review kit for every review request. No subscription; charged once through Shopify Billing. 7-day refund from inside the app, once per store (a refund for the tool, not tied to Google's decision).
 - In the Partner Dashboard pricing form, list both. The app code is in `gmc-app/app/lib/pass.ts` (limits) and `app/routes/app.pass.tsx` (purchase page).
+- Shopify's charge approval screen says one-time purchases are "non-refundable" (feedback 2026-11-25, point 1). The purchase page now says that this is Shopify's standard text and that Fixlog's 7-day refund still applies. Long issues it in the Partner Dashboard (charge → Issue refund); `npm run refunds` lists open requests.
+- Pricing limits (3 free scans per 30 days in the app vs unlimited on the web /scan page) are under review after the same feedback (points 10 and 11). Don't submit this section until Long decides.
+
+## Install screen note (feedback 2026-11-25, point 2)
+Shopify's install screen shows "Staff and contributors: Store owner" data (name, email, phone, address) even though Fixlog requests no scopes, because every installed app can read the shop's basic details. Fixlog doesn't read them. The privacy policy (fixlog.me/privacy, updated 2026-11-25) explains this. The app only queries `shop.plan.partnerDevelopment`, `currentAppInstallation.oneTimePurchases` and `shop.ianaTimezone`.
 
 ## Screenshots (3–6, 1600×900, no PII, no prices, no outcome promises)
 Files in `docs/listing/screenshots/` (retaken 2026-11-23 on the fixlog-demo store, Fixlog app, so no "Long GMC Test" name or long-gmc-test URL appears; cropped with `docs/listing/crop-screenshot.ps1`):

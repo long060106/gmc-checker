@@ -2,6 +2,7 @@
 // pre-review snapshot. Pure function so it can be tested. Wording rules: it records changes
 // to the public storefront; it never predicts or promises an outcome. Google alone decides.
 import { dayIn } from "./dates";
+import { COOLDOWN, REVIEW_TIME } from "./wording";
 
 export interface KitFixed {
   checkId: string;
@@ -88,8 +89,8 @@ export function buildKitText(k: KitInput, timeZone = "UTC"): string {
   }
 
   out.push("BEFORE YOU SEND");
-  out.push("- Google says a review takes about 7 business days and can take up to 2 weeks.");
-  out.push("- After a second unsuccessful review, a cool-down can start and grow with each attempt. Request one review at a time and wait for the result.");
+  out.push(`- ${REVIEW_TIME}`);
+  out.push(`- ${COOLDOWN} Request one review at a time and wait for the result.`);
   out.push("");
   out.push(
     "Independent tool, not affiliated with Google. This is a record of changes to the public storefront, not a prediction. Google alone decides.",

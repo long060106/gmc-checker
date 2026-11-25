@@ -26,7 +26,7 @@ export default function Privacy() {
   return (
     <main style={wrap}>
       <h1>Privacy policy</h1>
-      <p>Last updated: November 23, 2026.</p>
+      <p>Last updated: November 25, 2026.</p>
       <p>
         This policy covers Fixlog: the free storefront check at <Link to="/scan">/scan</Link> with its waitlist, and
         the Fixlog app for Shopify. We collect as little as we can.
@@ -37,7 +37,8 @@ export default function Privacy() {
         <li>
           <strong>The store address you scan.</strong> We fetch that store's public pages to run the checks. We do not
           store the address itself: we store a keyed one-way hash of the domain, so we can count repeat scans without
-          keeping a list of stores.
+          keeping a list of stores. That makes it pseudonymous, not anonymous: we can tell whether a store we&apos;re
+          given was scanned before, but we can&apos;t list the stores.
         </li>
         <li>
           <strong>Scan results.</strong> Which checks passed, failed or could not run, plus the engine version. Not the
@@ -64,6 +65,11 @@ export default function Privacy() {
           <strong>Your shop&apos;s myshopify.com address and an access token</strong> issued by Shopify when you install
           the app, so the app can open inside your Shopify admin and use Shopify Billing. The app requests no access
           scopes, so it cannot read your products, orders or customers.
+        </li>
+        <li>
+          <strong>Three details from Shopify, nothing else:</strong> whether your store is a development store (so test
+          purchases aren&apos;t charged), whether you bought the Review Pass, and your store&apos;s time zone (to date your
+          review kit). They are read when needed and not stored, except the purchase ID if you ask for a refund (below).
         </li>
         <li>
           <strong>The Merchant Center details you type in</strong> (business name, phone, email, address), if you choose
@@ -96,8 +102,15 @@ export default function Privacy() {
         asks us to erase your shop&apos;s data.
       </p>
       <p>
+        <strong>About Shopify&apos;s install screen.</strong> When you install Fixlog, Shopify lists &quot;Staff and
+        contributors: Store owner&quot; data (name, email address, phone number, physical address). Shopify shows this
+        even for apps like Fixlog that request no access scopes, because any installed app can read your shop&apos;s
+        basic details. Fixlog doesn&apos;t read or store them: it only asks Shopify for the three details above.
+      </p>
+      <p>
         We do not collect any data about your store&apos;s customers, orders or payments, in the app or on the web
-        checker. Both only read pages that anyone on the internet can see.
+        checker. The web checker only reads pages that anyone on the internet can see. The app reads the same pages (or
+        your password-protected storefront, if you save its password) plus the three details above.
       </p>
 
       <h2>Where it is stored</h2>

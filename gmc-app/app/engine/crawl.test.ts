@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { CrawlError, isPrivateIp, normalizeStoreUrl } from "./crawl.server";
+import { CrawlError, findShippingInfoLink, isPrivateIp, normalizeStoreUrl } from "./crawl.server";
 import { extractJsonLd, extractLinks, mainText, productOffers, textOf } from "./html";
 
 describe("SSRF guard", () => {
@@ -22,6 +22,20 @@ describe("normalizeStoreUrl", () => {
   it("rejects empty input with a friendly error", () => {
     expect(() => normalizeStoreUrl("  ")).toThrow(CrawlError);
   });
+});
+
+describe("findShippingInfoLink", () => {
+  const L = (path: string, text: string) => ({ href: `https://acme.test${path}`, text });
+  it("finds a store page linked as shipping info, without its #anchor", () =>
+    expect(findShippingInfoLink([L("/pages/contact", "Contact"), L("/pages/help#template--1__heading", "Shipping + Delivery")])).toBe(
+      "https://acme.test/pages/help",
+    ));
+  it("matches on the path too", () =>
+    expect(findShippingInfoLink([L("/pages/shipping-returns", "Help")])).toBe("https://acme.test/pages/shipping-returns"));
+  it("skips the policy page itself and products like shipping protection", () =>
+    expect(
+      findShippingInfoLink([L("/policies/shipping-policy", "Shipping"), L("/products/shipping-protection", "Shipping Protection")]),
+    ).toBeUndefined());
 });
 
 describe("html helpers", () => {
