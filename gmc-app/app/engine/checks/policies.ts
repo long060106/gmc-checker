@@ -24,18 +24,71 @@ export const checkRefundPage: CheckFn = (s) => {
 
 const SHIP_COST = /(free shipping|shipping (?:is )?free|flat[- ]rate|shipping (?:rates?|costs?|fees?|charges?)|calculated at checkout|[$€£]\s?\d)/i;
 const SHIP_TIME = /(\d+\s*(?:-|–|to)\s*\d+\s*(?:business |working )?days|\d+\s*(?:business |working )?days?|delivery times?|processing times?|ships? within)/i;
+// On a general page (help, FAQ) a bare "30 days" is usually the return window, so only ranges,
+// business/working days and explicit delivery wording count as delivery times there.
+const INFO_TIME = /(\d+\s*(?:-|–|to)\s*\d+\s*(?:business |working )?days|\d+\s*(?:business|working) days?|delivery times?|processing times?|ships? within|dispatch(?:ed)? within)/i;
+const SHIP_WORD = /\b(?:shipping|shipped|ships?|delivery|deliveries|delivered)\b/gi;
 
-// SHP-01 — shipping policy exists and states costs and delivery times.
+/**
+ * The parts of a page within `radius` characters of a shipping word, overlapping parts merged.
+ * A help or FAQ page also covers refunds and prices, so "$40" there only counts as a shipping
+ * cost when it sits near a word like "shipping" or "delivery".
+ */
+export function nearShippingWords(text: string, radius = 150): string[] {
+  const out: string[] = [];
+  let from = 0;
+  let to = -1;
+  for (const m of text.matchAll(SHIP_WORD)) {
+    const i = m.index ?? 0;
+    const a = Math.max(0, i - radius);
+    const b = i + m[0].length + radius;
+    if (to >= 0 && a <= to) {
+      to = b;
+      continue;
+    }
+    if (to >= 0) out.push(text.slice(from, to));
+    from = a;
+    to = b;
+  }
+  if (to >= 0) out.push(text.slice(from, to));
+  return out;
+}
+
+// SHP-01 — shipping policy exists and states costs and delivery times. When the home page links a
+// separate shipping page (pages.shippingInfo) that has what the policy page lacks, it's a warning
+// that names both pages, not a fail: the info is on the site, just not on the policy page.
 export const checkShippingPolicy: CheckFn = (s) => {
   const base = { checkId: "SHP-01", googleRef: REF.misrepresentation, shopifyFix: FIX.shipping };
   const p = s.pages.shipping;
-  if (!ok(p)) {
-    return { ...base, status: "fail", evidence: `Shipping policy page ${p?.url ?? "/policies/shipping-policy"} returned ${p?.status || "no response"}` };
+  const policyText = ok(p) ? mainText(p.html) : "";
+  const onPolicy = { cost: SHIP_COST.test(policyText), time: SHIP_TIME.test(policyText) };
+  if (ok(p) && onPolicy.cost && onPolicy.time) {
+    return { ...base, status: "pass", evidence: "States shipping costs and delivery times" };
   }
-  const text = mainText(p.html);
-  const missing = [!SHIP_COST.test(text) && "shipping costs", !SHIP_TIME.test(text) && "delivery times"].filter(Boolean);
-  if (!missing.length) return { ...base, status: "pass", evidence: "States shipping costs and delivery times" };
-  return { ...base, status: missing.length === 2 ? "fail" : "warn", evidence: `Could not find: ${missing.join(", ")}` };
+
+  const info = ok(s.pages.shippingInfo) ? s.pages.shippingInfo : undefined;
+  const infoPath = info ? pathOf(info) : "";
+  const near = info ? nearShippingWords(mainText(info.html)) : [];
+  const onInfo = { cost: near.some((t) => SHIP_COST.test(t)), time: near.some((t) => INFO_TIME.test(t)) };
+  const missing = [
+    !(onPolicy.cost || onInfo.cost) && "shipping costs",
+    !(onPolicy.time || onInfo.time) && "delivery times",
+  ].filter(Boolean);
+  const notLoaded = `Shipping policy page ${p?.url ?? "/policies/shipping-policy"} returned ${p?.status || "no response"}`;
+
+  if (!missing.length) {
+    const lacks = [!onPolicy.cost && "shipping costs", !onPolicy.time && "delivery times"].filter(Boolean).join(" or ");
+    const evidence = ok(p)
+      ? `Your shipping policy page doesn't state ${lacks}, but ${infoPath} appears to. State them in the shipping policy too, so anyone who opens it finds them.`
+      : `${notLoaded}, but ${infoPath} appears to state shipping costs and delivery times. Add them as your shipping policy too.`;
+    return { ...base, status: "warn", evidence };
+  }
+  if (!ok(p)) {
+    const also = info ? `, and ${infoPath} doesn't state ${missing.join(" or ")} either` : "";
+    return { ...base, status: "fail", evidence: notLoaded + also };
+  }
+  const looked = info ? ` (looked in your shipping policy and ${infoPath})` : "";
+  return { ...base, status: missing.length === 2 ? "fail" : "warn", evidence: `Could not find: ${missing.join(", ")}${looked}` };
 };
 
 // POL-01 — privacy policy and terms of service exist.

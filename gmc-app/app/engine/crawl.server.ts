@@ -173,6 +173,20 @@ function looksLikeShopify(p: Page): boolean {
 
 const stripHash = (u: string) => u.split("#")[0];
 
+/**
+ * A store page (/pages/...) that the home page links to as shipping or delivery info, e.g. a
+ * "Shipping + Delivery" footer link to /pages/help#shipping. Many stores keep their shipping
+ * details there and leave Shopify's shipping policy page short, so SHP-01 reads it too.
+ * Returns the URL without its #anchor, or undefined. `links` must be absolute same-store URLs.
+ */
+export function findShippingInfoLink(links: { href: string; text: string }[]): string | undefined {
+  const pick = links.find((l) => {
+    const path = new URL(l.href).pathname;
+    return /^\/pages\//i.test(path) && (/shipping|delivery/i.test(path) || /shipping|delivery/i.test(l.text));
+  });
+  return pick && stripHash(pick.href);
+}
+
 /** Hidden inputs of the storefront password form (e.g. authenticity_token, form_type), by name. */
 export function passwordFormFields(html: string): Record<string, string> | null {
   const form = [...html.matchAll(/<form\b[^>]*>[\s\S]*?<\/form>/gi)]
@@ -267,6 +281,7 @@ export async function crawlStore(input: string, opts: CrawlOptions = {}): Promis
   });
   const findLink = (re: RegExp) =>
     internal.find((l) => re.test(new URL(l.href).pathname) || re.test(l.text))?.href;
+  const shippingInfo = findShippingInfoLink(internal);
 
   const targets: Record<string, string> = {
     refund: `${origin}/policies/refund-policy`,
@@ -275,6 +290,7 @@ export async function crawlStore(input: string, opts: CrawlOptions = {}): Promis
     terms: `${origin}/policies/terms-of-service`,
     contact: findLink(/contact/i) ?? `${origin}/pages/contact`,
     about: findLink(/about|our[- ]story/i) ?? `${origin}/pages/about-us`,
+    ...(shippingInfo ? { shippingInfo } : {}),
   };
   const fetched = await mapLimit(Object.entries(targets), CONCURRENCY, async ([k, u]) => [k, await get(u)] as const);
   for (const [k, p] of fetched) pages[k] = p;

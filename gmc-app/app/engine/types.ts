@@ -16,7 +16,8 @@ export interface LinkStatus {
   finalUrl: string;
 }
 
-// Keys used in `pages`: home, refund, shipping, privacy, terms, contact, about
+// Keys used in `pages`: home, refund, shipping, privacy, terms, contact, about, and shippingInfo
+// (a /pages/... link about shipping or delivery, only when the home page has one).
 export interface StoreSnapshot {
   pages: Record<string, Page | undefined>;
   products?: Page[]; // up to 3 sampled product pages

@@ -11,7 +11,7 @@ import { checkGmcContactMatch } from "./checks/gmcmatch";
 import { REF } from "./refs";
 
 // Bump when any check's logic changes. Scan diffs are only valid between scans with the same version.
-export const ENGINE_VERSION = "0.1.0";
+export const ENGINE_VERSION = "0.2.0"; // 0.2.0: SHP-01 also reads a linked shipping info page
 
 export interface CheckInfo {
   title: string;

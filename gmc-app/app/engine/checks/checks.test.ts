@@ -79,6 +79,47 @@ describe("policies", () => {
     expect(st(checkShippingPolicy(snap({ pages: { shipping } })))).toBe("fail");
   });
 
+  // Like deathwishcoffee.com (2026-11-25): an almost empty policy page, and a footer link
+  // "Shipping + Delivery" to /pages/help#... that has the real shipping details.
+  const emptyPolicy = page(policy("Shipping policy"), "/policies/shipping-policy");
+  const helpPage = (body: string) => page(`<html><body><header>Menu $99</header><main>${body}</main></body></html>`, "/pages/help");
+  const HELP_SHIPPING =
+    "<h2>Shipping + Delivery</h2><p>We charge a flat-rate shipping cost of $8.00 USD. Spend over $50 USD for free shipping.</p>" +
+    "<p>Standard delivery: 7-9 days.</p>";
+
+  it("SHP-01 warns, naming both pages, when a linked page has what the policy page lacks", () => {
+    const f = checkShippingPolicy(snap({ pages: { shipping: emptyPolicy, shippingInfo: helpPage(HELP_SHIPPING) } }));
+    expect(f.status).toBe("warn");
+    expect(f.evidence).toContain("/pages/help");
+    expect(f.evidence).toContain("shipping costs or delivery times");
+  });
+  it("SHP-01 warns when the policy page is missing but a linked page has the info", () => {
+    const shipping = page("Not found", "/policies/shipping-policy", 404);
+    const f = checkShippingPolicy(snap({ pages: { shipping, shippingInfo: helpPage(HELP_SHIPPING) } }));
+    expect(f.status).toBe("warn");
+    expect(f.evidence).toContain("returned 404");
+  });
+  it("SHP-01 combines the two pages: cost on the policy, delivery time on the linked page", () => {
+    const shipping = page(policy("Shipping is free on every order."), "/policies/shipping-policy");
+    const shippingInfo = helpPage("<p>Orders are delivered in 3-5 business days.</p>");
+    expect(st(checkShippingPolicy(snap({ pages: { shipping, shippingInfo } })))).toBe("warn");
+  });
+  it("SHP-01 still fails when the linked page only has a refund amount and a return window", () => {
+    const shippingInfo = helpPage(
+      "<p>We ship worldwide.</p>" + "<p>Our coffee is roasted fresh every week.</p>".repeat(8) +
+        "<p>Refunds over $40 need a receipt. Returns are accepted within 30 days.</p>",
+    );
+    const f = checkShippingPolicy(snap({ pages: { shipping: emptyPolicy, shippingInfo } }));
+    expect(f.status).toBe("fail");
+    expect(f.evidence).toContain("looked in your shipping policy and /pages/help");
+  });
+  it("SHP-01 doesn't count a bare 'within 30 days' on the linked page as a delivery time", () => {
+    const shippingInfo = helpPage("<p>Free shipping on all orders. Return shipping is free within 30 days.</p>");
+    const f = checkShippingPolicy(snap({ pages: { shipping: emptyPolicy, shippingInfo } }));
+    expect(f.status).toBe("warn"); // costs found, delivery times still missing
+    expect(f.evidence).toContain("Could not find: delivery times");
+  });
+
   it("POL-01 warns when terms are missing", () =>
     expect(st(checkPrivacyAndTerms(snap({ pages: { privacy: page(policy("p"), "/policies/privacy-policy") } })))).toBe("warn"));
 

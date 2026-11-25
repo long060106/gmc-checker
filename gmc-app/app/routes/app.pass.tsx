@@ -148,7 +148,7 @@ export default function Pass() {
       <s-section heading={`$${PASS_PRICE_USD} once, for ${PASS_DAYS} days`}>
         <s-stack direction="block" gap="base">
           <s-paragraph>
-            Getting reinstated is usually a few rounds of fix, request a review, wait. The pass covers that whole stretch,
+            A suspension usually takes a few rounds of fix, request a review, wait. The pass covers that whole stretch,
             with no subscription to remember to cancel.
           </s-paragraph>
           <s-table>
@@ -201,7 +201,7 @@ export default function Pass() {
               <s-text color="subdued">
                 {refundUsed
                   ? "This store has already used its refund, so a new pass can't be refunded."
-                  : `${REFUND_DAYS}-day refund: if the pass isn't useful, ask for your money back on this page within ${REFUND_DAYS} days. One click, no questions needed.`}
+                  : `${REFUND_DAYS}-day refund: if the pass isn't useful, ask for your money back on this page within ${REFUND_DAYS} days. One click, no questions needed. Shopify's approval screen will say the purchase is non-refundable: that's Shopify's standard text for one-time charges. Fixlog's refund still applies, and we send it back through Shopify.`}
               </s-text>
             </s-paragraph>
           ) : null}
@@ -246,7 +246,7 @@ export default function Pass() {
       </s-section>
       <s-section slot="aside" heading="Billing">
         <s-paragraph>
-          {`Charged once through your Shopify bill, in USD. It doesn't renew. When it ends, the app goes back to the free limits and keeps all your history. Changed your mind? Ask for a refund on this page within ${REFUND_DAYS} days of buying (once per store).`}
+          {`Charged once through your Shopify bill, in USD. It doesn't renew. When it ends, the app goes back to the free limits and keeps all your history. Changed your mind? Ask for a refund on this page within ${REFUND_DAYS} days of buying (once per store), even though Shopify's approval screen calls the purchase non-refundable. We return it through Shopify.`}
         </s-paragraph>
       </s-section>
     </s-page>
