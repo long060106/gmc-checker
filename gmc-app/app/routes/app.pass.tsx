@@ -9,34 +9,20 @@ import { boundary } from "@shopify/shopify-app-react-router/server";
 
 import { authenticate } from "../shopify.server";
 import prisma from "../db.server";
-import { countRecentScans, getPass } from "../lib/pass.server";
-import {
-  FREE_ATTEMPTS,
-  FREE_SCANS,
-  FREE_WINDOW_DAYS,
-  PASS_DAYS,
-  PASS_PLAN,
-  PASS_PRICE_USD,
-  REFUND_DAYS,
-  refundable,
-  scansLeft,
-} from "../lib/pass";
+import { getPass } from "../lib/pass.server";
+import { FREE_ATTEMPTS, PASS_DAYS, PASS_PLAN, PASS_PRICE_USD, REFUND_DAYS, refundable } from "../lib/pass";
 
 const DAY = 24 * 3600_000;
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { session, admin } = await authenticate.admin(request);
-  const [{ pass, testStore, priorRefunds }, recent] = await Promise.all([
-    getPass(admin, session.shop),
-    countRecentScans(session.shop),
-  ]);
+  const { pass, testStore, priorRefunds } = await getPass(admin, session.shop);
   // Shopify sends the merchant back here with ?charge_id=… after they approve or decline.
   const returned = new URL(request.url).searchParams.has("charge_id");
   const canRefund = refundable(pass, priorRefunds);
   return {
     pass,
     testStore,
-    scansLeft: scansLeft(recent, pass),
     returned,
     canRefund,
     refundUsed: priorRefunds > 0, // the 7-day refund is once per store
@@ -101,7 +87,7 @@ export const action = async ({ request }: ActionFunctionArgs): Promise<ActionRes
 const fmtDate = (iso: string) => new Date(iso).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
 
 export default function Pass() {
-  const { pass, testStore, scansLeft: left, returned, canRefund, refundUsed, refundUntil } = useLoaderData<typeof loader>();
+  const { pass, testStore, returned, canRefund, refundUsed, refundUntil } = useLoaderData<typeof loader>();
   const result = useActionData<typeof action>();
   const nav = useNavigation();
   const busy = nav.state !== "idle";
@@ -135,7 +121,7 @@ export default function Pass() {
       {pass.active ? (
         <s-banner tone="success" heading={`Your pass is active until ${fmtDate(pass.expiresAt)}`}>
           <s-paragraph>
-            Unlimited scans and a snapshot and review kit for every review request until then.
+            A snapshot and review kit for every review request until then.
             {pass.test ? " (Test purchase on a development store: no money was charged.)" : ""}
           </s-paragraph>
         </s-banner>
@@ -148,8 +134,9 @@ export default function Pass() {
       <s-section heading={`$${PASS_PRICE_USD} once, for ${PASS_DAYS} days`}>
         <s-stack direction="block" gap="base">
           <s-paragraph>
-            A suspension usually takes a few rounds of fix, request a review, wait. The pass covers that whole stretch,
-            with no subscription to remember to cancel.
+            A suspension usually takes a few rounds of fix, request a review, wait. Scans are free and unlimited, and so
+            is the kit for your first request. The pass covers every request after that for {PASS_DAYS} days, with no
+            subscription to remember to cancel.
           </s-paragraph>
           <s-table>
             <s-table-header-row>
@@ -165,7 +152,7 @@ export default function Pass() {
               </s-table-row>
               <s-table-row>
                 <s-table-cell>Store scans</s-table-cell>
-                <s-table-cell>{`${FREE_SCANS} per ${FREE_WINDOW_DAYS} days`}</s-table-cell>
+                <s-table-cell>Unlimited</s-table-cell>
                 <s-table-cell>Unlimited</s-table-cell>
               </s-table-row>
               <s-table-row>
@@ -183,11 +170,6 @@ export default function Pass() {
               </s-table-row>
             </s-table-body>
           </s-table>
-          {!pass.active && left !== null ? (
-            <s-paragraph>
-              <s-text color="subdued">{`You have ${left} free ${left === 1 ? "scan" : "scans"} left in the last ${FREE_WINDOW_DAYS} days.`}</s-text>
-            </s-paragraph>
-          ) : null}
           {!pass.active ? (
             <Form method="post">
               <input type="hidden" name="intent" value="buy" />
@@ -246,7 +228,7 @@ export default function Pass() {
       </s-section>
       <s-section slot="aside" heading="Billing">
         <s-paragraph>
-          {`Charged once through your Shopify bill, in USD. It doesn't renew. When it ends, the app goes back to the free limits and keeps all your history. Changed your mind? Ask for a refund on this page within ${REFUND_DAYS} days of buying (once per store), even though Shopify's approval screen calls the purchase non-refundable. We return it through Shopify.`}
+          {`Charged once through your Shopify bill, in USD. It doesn't renew. When it ends, you're back on the free plan: scans stay unlimited and all your history stays. Changed your mind? Ask for a refund on this page within ${REFUND_DAYS} days of buying (once per store), even though Shopify's approval screen calls the purchase non-refundable. We return it through Shopify.`}
         </s-paragraph>
       </s-section>
     </s-page>

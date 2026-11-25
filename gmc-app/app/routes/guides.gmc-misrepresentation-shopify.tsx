@@ -197,7 +197,7 @@ export default function Guide() {
           from the linked Google pages as read on {CHECKED_ON}; Google may change them.
         </p>
         <p>
-          <Link to="/privacy">Privacy</Link>
+          Fixlog is built by Long Nguyen, an independent developer. <Link to="/privacy">Privacy and contact</Link>
         </p>
       </footer>
     </main>

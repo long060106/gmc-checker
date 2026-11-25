@@ -196,7 +196,7 @@ export default function Snapshot() {
         {needsPass ? (
           <s-banner tone="info" heading="Your free snapshot is used">
             <s-paragraph>
-              {`The ${PASS_PLAN} ($${PASS_PRICE_USD} once, ${PASS_DAYS} days) gives a snapshot for every review request and unlimited scans.`}{" "}
+              {`The ${PASS_PLAN} ($${PASS_PRICE_USD} once, ${PASS_DAYS} days) gives a snapshot and review kit for every review request. Scans stay free and unlimited either way.`}{" "}
               <s-link href="/app/pass">See the pass</s-link>
             </s-paragraph>
           </s-banner>

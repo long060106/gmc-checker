@@ -10,8 +10,9 @@ import { boundary } from "@shopify/shopify-app-react-router/server";
 import { authenticate } from "../shopify.server";
 import prisma from "../db.server";
 import { parseResults, profileInput, scanShop } from "../lib/appscan.server";
-import { countRecentScans, getPass } from "../lib/pass.server";
-import { FREE_SCANS, FREE_WINDOW_DAYS, PASS_PRICE_USD, REFUND_DAYS, scansLeft, snapshotAllowed } from "../lib/pass";
+import { getPass } from "../lib/pass.server";
+import { PASS_DAYS, PASS_PRICE_USD, REFUND_DAYS, snapshotAllowed } from "../lib/pass";
+import { rateLimit } from "../lib/ratelimit.server";
 import { CHECK_INFO, type CheckInfo } from "../engine/run";
 import type { Finding, Status } from "../engine/types";
 import { ALL_PASS_NOTE, allPassed, checkSummary, COOLDOWN, REVIEW_TIME } from "../lib/wording";
@@ -20,19 +21,20 @@ const DAY = 24 * 3600_000;
 // Google says reviews take 7 business days, up to 2 weeks. Same 14 days as the /scan follow-up email.
 const ASK_AFTER_DAYS = 14;
 const SNOOZE_DAYS = 7; // "Still waiting" hides the question for a week
+// Scans are free and unlimited. This only stops runaway clicking: each scan fetches up to 25 store pages.
+const SCAN_MAX = 10;
+const SCAN_WINDOW_MS = 10 * 60_000;
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { session, admin } = await authenticate.admin(request);
-  const [profile, { pass, priorRefunds }, recent] = await Promise.all([
+  const [profile, { pass, priorRefunds }] = await Promise.all([
     prisma.shopProfile.findUnique({ where: { shop: session.shop } }),
     getPass(admin, session.shop),
-    countRecentScans(session.shop),
   ]);
   const hasGmcInfo = Boolean(profile?.gmcBusinessName || profile?.gmcPhone || profile?.gmcEmail || profile?.gmcAddress);
   const plan = {
     passActive: pass.active,
     passUntil: pass.active ? pass.expiresAt : null,
-    scansLeft: scansLeft(recent, pass),
     hasStorefrontPassword: Boolean(profile?.storefrontPassword),
     refundNote: priorRefunds > 0 ? "" : `, ${REFUND_DAYS}-day refund`, // the refund is once per store
   };
@@ -91,12 +93,12 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
 type ActionResult =
   | { intent: "scan"; ok: true; findings: Finding[]; origin: string; createdAt: string }
-  | { intent: "scan"; ok: false; error: string; limit?: boolean }
+  | { intent: "scan"; ok: false; error: string }
   | { intent: "outcome"; ok: boolean; answer?: string }
   | { intent: "password-removed"; ok: true };
 
 export const action = async ({ request }: ActionFunctionArgs): Promise<ActionResult> => {
-  const { session, admin } = await authenticate.admin(request);
+  const { session } = await authenticate.admin(request);
   const form = await request.formData();
 
   if (form.get("intent") === "outcome") {
@@ -125,13 +127,13 @@ export const action = async ({ request }: ActionFunctionArgs): Promise<ActionRes
     if (!value) return { intent: "password-removed", ok: true };
   }
 
-  const [{ pass }, recent] = await Promise.all([getPass(admin, session.shop), countRecentScans(session.shop)]);
-  if (scansLeft(recent, pass) === 0) {
+  const limit = rateLimit(`app-scan:${session.shop}`, SCAN_MAX, SCAN_WINDOW_MS);
+  if (!limit.ok) {
+    const mins = Math.ceil(limit.retryAfterSec / 60);
     return {
       intent: "scan",
       ok: false,
-      limit: true,
-      error: `You've used your ${FREE_SCANS} free scans in the last ${FREE_WINDOW_DAYS} days. Your earlier results are still below.`,
+      error: `That's ${SCAN_MAX} scans in a few minutes. Try again in about ${mins} minute${mins === 1 ? "" : "s"}. Your latest results are below.`,
     };
   }
 
@@ -205,7 +207,7 @@ function LatestStatuses({ results }: { results: Record<string, Status> }) {
 }
 
 export default function Index() {
-  const { latest, askOutcome, rejected, hasGmcInfo, passActive, passUntil, scansLeft: left, hasStorefrontPassword, refundNote } =
+  const { latest, askOutcome, rejected, hasGmcInfo, passActive, passUntil, hasStorefrontPassword, refundNote } =
     useLoaderData<typeof loader>();
   const [storefrontPassword, setStorefrontPassword] = useState("");
   const scanFetcher = useFetcher<typeof action>();
@@ -296,14 +298,7 @@ export default function Index() {
         </s-banner>
       ) : null}
 
-      {result && !result.ok && "limit" in result && result.limit ? (
-        <s-banner tone="warning" heading="Free scans used up">
-          <s-paragraph>
-            {result.error} The Review Pass gives unlimited scans for 60 days.{" "}
-            <s-link href="/app/pass">See the pass</s-link>
-          </s-paragraph>
-        </s-banner>
-      ) : result && !result.ok ? (
+      {result && !result.ok ? (
         <s-banner tone="critical" heading="The scan didn't finish">
           <s-paragraph>{result.error}</s-paragraph>
         </s-banner>
@@ -397,18 +392,18 @@ export default function Index() {
       <s-section slot="aside" heading={passActive ? "Review Pass" : "Free plan"}>
         <s-paragraph>
           {passActive && passUntil
-            ? `Active until ${fmtDate(passUntil)}: unlimited scans and snapshots.`
-            : `${left ?? 0} of ${FREE_SCANS} free scans left. Scans older than ${FREE_WINDOW_DAYS} days don't count.`}
+            ? `Active until ${fmtDate(passUntil)}: a snapshot and review kit for every review request.`
+            : "Scans are free and unlimited. So are the snapshot and review kit for your first review request."}
         </s-paragraph>
         {!passActive ? (
-          <s-link href="/app/pass">{`Unlimited scans for 60 days, $${PASS_PRICE_USD} once${refundNote}`}</s-link>
+          <s-link href="/app/pass">{`A kit for every later request: ${PASS_DAYS} days, $${PASS_PRICE_USD} once${refundNote}`}</s-link>
         ) : null}
       </s-section>
 
       <s-section slot="aside" heading="About this check">
         <s-paragraph>
-          Independent tool, not affiliated with Google. It checks Google's published criteria only. Google alone decides
-          on reviews and reinstatement.
+          Independent tool by Long Nguyen, not affiliated with Google. It checks Google's published criteria only.
+          Google alone decides on reviews and reinstatement.
         </s-paragraph>
       </s-section>
     </s-page>
