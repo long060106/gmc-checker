@@ -7,14 +7,14 @@ Updated 2026-11-16 for the production app **Fixlog** (`shopify.app.production.to
 2. Click **Scan my store**. Development stores are password-protected, so the first scan shows **"Your store is password-protected"** and most checks as not checked. That is correct: Google can't see a password-protected store either. To see the full report, copy the store password from **Online Store → Preferences**, paste it into **Storefront password** in that banner and click **Save and scan**. The app uses it only to open the store for scans (it can be removed from the side panel and is deleted on uninstall). "Store is public" stays flagged, because Google still can't see the store.
 3. Open **Merchant Center info**, enter any business name, phone, email and address, save, and scan again. The Identity and Contact checks now compare those values with the storefront.
 4. Open **Before you request a review**, pick an issue label, click **I'm about to request a review**. The app re-scans and lists what changed since the first scan, with a review kit you can copy or download as .txt.
-5. **Paid feature (one-time charge through Shopify Billing):** open **Review Pass** → **Get the pass for $29** → approve the charge. On a development store this is a test charge. Back in the app you see "Your pass is active until …", and scans and snapshots are no longer limited. **Request a refund of $29** on the same page ends the pass at once (7-day window, once per store); refunds are then issued manually from the Partner Dashboard.
-6. Free plan limits, so you can see the paywall: 3 scans per 30 days and the first snapshot.
+5. **Paid feature (one-time charge through Shopify Billing):** open **Review Pass** → **Get the pass for $29** → approve the charge. On a development store this is a test charge. Back in the app you see "Your pass is active until …", and a snapshot can be taken for every review request. **Request a refund of $29** on the same page ends the pass at once (7-day window, once per store); refunds are then issued manually from the Partner Dashboard.
+6. Free plan: scans are unlimited, and the first snapshot is free. To see the paywall, open **Before you request a review** again after step 4: the second snapshot needs the pass.
 7. The app requests no access scopes and reads only the public storefront. No customer, order or product data is accessed or stored. Mandatory compliance webhooks are handled at `/webhooks/compliance`; `shop/redact` deletes all of the shop's data.
 
 Test credentials: none needed. The app has no separate login; it opens inside the Shopify admin after install.
 
 ## Screencast script
-Moved to `docs/submission-guide.md`, part C (11 shots with English narration, recorded on a fresh dev store so the free plan → paywall → Pass flow fits exactly 3 scans and 1 snapshot).
+Moved to `docs/submission-guide.md`, part C (11 shots with English narration, recorded on a fresh dev store; the paywall appears at the second snapshot). Scans became unlimited on 2026-11-25, so a video recorded before that date shows the old "0 of 3 free scans left" line and must be re-recorded.
 
 ## Pre-submission checklist
 - [x] Separate production app "Fixlog" with `application_url` = Render URL, compliance webhooks, `automatically_update_urls_on_dev = false` (released as fixlog-2, 2026-11-16)

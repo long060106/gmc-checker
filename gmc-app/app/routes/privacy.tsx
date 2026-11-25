@@ -29,7 +29,8 @@ export default function Privacy() {
       <p>Last updated: November 25, 2026.</p>
       <p>
         This policy covers Fixlog: the free storefront check at <Link to="/scan">/scan</Link> with its waitlist, and
-        the Fixlog app for Shopify. We collect as little as we can.
+        the Fixlog app for Shopify. Fixlog is built and run by Long Nguyen, an independent developer. We collect as
+        little as we can.
       </p>
 
       <h2>What we collect on the web checker (/scan)</h2>

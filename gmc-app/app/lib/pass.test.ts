@@ -1,11 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
   billingTestMode,
-  FREE_SCANS,
   PASS_PLAN,
   passFromPurchases,
   refundable,
-  scansLeft,
   snapshotAllowed,
   type Purchase,
 } from "./pass";
@@ -77,19 +75,9 @@ describe("refunds", () => {
   });
 });
 
-describe("free limits", () => {
+describe("free plan", () => {
   const free = { active: false } as const;
   const paid = { active: true, expiresAt: daysAgo(-30), test: false, purchaseId: "x", purchasedAt: daysAgo(30) } as const;
-
-  it("counts down free scans and never goes below zero", () => {
-    expect(scansLeft(0, free)).toBe(FREE_SCANS);
-    expect(scansLeft(FREE_SCANS, free)).toBe(0);
-    expect(scansLeft(FREE_SCANS + 5, free)).toBe(0);
-  });
-
-  it("has no scan limit with a pass", () => {
-    expect(scansLeft(100, paid)).toBeNull();
-  });
 
   it("allows the first snapshot free and later ones with a pass", () => {
     expect(snapshotAllowed(1, free)).toBe(true);

@@ -53,8 +53,8 @@ Lời thoại tiếng Anh nằm trong dấu ngoặc kép. Đoạn nào cần gõ
 | 6 | (Pause) Mở tab admin → **Online Store → Pages → Add page**, tiêu đề **About us**, gõ một câu → Save. (Resume) | "Now I fix one issue in the store: I add an About page." |
 | 7 | Quay lại app → **Before you request a review** → chọn một issue label → **I'm about to request a review**. Danh sách **"Changes made since …"** có dòng "About page exists". | "Right before asking Google for a review, the merchant takes a snapshot. The app scans again and lists which checks changed since the first full scan." |
 | 8 | Bấm **Open your review kit** → **Copy**, rồi **Download .txt**. | "The review kit has what changed, what is still flagged, and earlier requests. The merchant can copy it or download it as a text file." |
-| 9 | Về app home: dòng "0 of 3 free scans left" hiện ra. Mở **Review Pass** → **Get the pass** → trang **Approve charge** của Shopify ("You will not be billed for this test charge") → **Approve** (bạn tự bấm). | "The free plan includes every finding, three scans every thirty days, and the first snapshot. The Review Pass is a one-time charge through Shopify Billing. On a development store it's a test charge." |
-| 10 | Trang hiện **"Your pass is active until …"** → về app home → **Scan my store** chạy được. | "With the pass, scans and snapshots are unlimited for sixty days. A refund can be requested on this page within seven days." |
+| 9 | Mở lại **Before you request a review**: banner **"Your free snapshot is used"** hiện ra → **See the pass** → **Get the pass** → trang **Approve charge** của Shopify ("You will not be billed for this test charge") → **Approve** (bạn tự bấm). | "Scans are free and unlimited, and so is the snapshot and kit for the first review request. Each later request needs the Review Pass, a one-time charge through Shopify Billing. On a development store it's a test charge." |
+| 10 | Trang hiện **"Your pass is active until …"** → **Before you request a review** → nút **I'm about to request a review** dùng được lại. | "With the pass, every review request gets a snapshot and kit for sixty days. A refund can be requested on this page within seven days." |
 | 11 | Admin → **Settings → Apps** → Fixlog → **Uninstall**. | "Uninstalling deletes the saved storefront password, and Shopify's shop redact webhook deletes the rest of the shop's data. Thanks for reviewing." |
 
 Không nói những câu sau trong video (đây là danh sách "Never write" của dự án): "get reinstated", "fix your suspension", "approval chance", "readiness score", "guaranteed", "Google-approved", "official".
@@ -73,9 +73,9 @@ Mở: Dev Dashboard → Apps → **Fixlog** → trang **App Store review / Distr
 
 | Trường | Dán vào |
 |---|---|
-| App name | `Fixlog – GMC Review Prep` |
+| App name | `Fixlog – Merchant Center Prep` (đổi ngày 25/11, feedback #6 và #14) |
 | App icon | `docs/listing/icon-1200.png` (đã upload) |
-| App card subtitle | `Know what to fix and what changed before you request a review` (61 ký tự). Phương án dự phòng: `Check your store against Google rules before a GMC review` (57). Nếu form giới hạn ngắn hơn, báo Claude. |
+| App card subtitle | `Know what to fix and what changed before you request a review` (61 ký tự). Phương án dự phòng: `Check your store against Google rules before a Merchant Center review` (69, chỉ dùng nếu form cho dài hơn 61). Nếu form giới hạn ngắn hơn, báo Claude. |
 | App introduction | lấy từ `docs/listing-draft.md` → "App introduction" |
 | App details | `docs/listing-draft.md` → "App details" |
 | Feature list | `docs/listing-draft.md` → 6 dòng "Feature list" |
@@ -83,7 +83,7 @@ Mở: Dev Dashboard → Apps → **Fixlog** → trang **App Store review / Distr
 | Screenshots | 5 file trong `docs/listing/screenshots/`, theo thứ tự 1→5, với alt text bên dưới |
 | Demo store URL | bỏ trống (store dev có password) |
 | Search terms | `merchant center suspended`, `misrepresentation`, `website needs improvement`, `google shopping policy`, `gmc compliance` |
-| Pricing | 2 gói: **Free** (every finding of every scan, 3 scans per 30 days, first pre-review snapshot and review kit, review history) và **Review Pass**, one-time **$29** (60 days of unlimited scans, a snapshot and review kit for every review request). Không ghi giá ở bất kỳ chỗ nào khác. |
+| Pricing | 2 gói: **Free** (unlimited scans with every finding, first pre-review snapshot and review kit, review history) và **Review Pass**, one-time **$29** (60 days: a snapshot and review kit for every review request). Không ghi giá ở bất kỳ chỗ nào khác. |
 | Category / tags | chọn category gần nhất với Google Shopping / Merchant Center. Form có định nghĩa từng category; chọn theo chức năng chính là kiểm tra storefront. |
 | Install requirements | yêu cầu sales channel **Online Store** (app đọc storefront công khai). Không giới hạn quốc gia. |
 | Privacy policy URL | `https://fixlog.me/privacy` |

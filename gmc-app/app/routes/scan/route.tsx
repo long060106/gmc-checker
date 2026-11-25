@@ -512,7 +512,7 @@ export default function ScanPage() {
           means the published criteria we check look fine, not that your account will be approved.
         </p>
         <p>
-          <Link to="/privacy">Privacy</Link>
+          Fixlog is built by Long Nguyen, an independent developer. <Link to="/privacy">Privacy and contact</Link>
         </p>
       </footer>
     </main>

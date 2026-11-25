@@ -1,7 +1,6 @@
-// Reads the shop's Review Pass from Shopify (the source of truth for what was paid),
-// and counts the shop's recent scans for the free limit. Rules live in ./pass.ts.
+// Reads the shop's Review Pass from Shopify (the source of truth for what was paid). Rules live in ./pass.ts.
 import prisma from "../db.server";
-import { billingTestMode, freeWindowStart, passFromPurchases, type PassStatus, type Purchase } from "./pass";
+import { billingTestMode, passFromPurchases, type PassStatus, type Purchase } from "./pass";
 
 /** The `admin` object from authenticate.admin(request). */
 type AdminGraphql = { graphql: (query: string) => Promise<Response> };
@@ -45,9 +44,4 @@ export async function getPass(admin: AdminGraphql, shop: string): Promise<PassIn
     console.error("[pass] could not read purchases", e);
     return { pass: { active: false }, testStore: billingTestMode(false), priorRefunds: 0 };
   }
-}
-
-/** In-app scans (including snapshots) in the rolling free window. */
-export function countRecentScans(shop: string): Promise<number> {
-  return prisma.appScanDetail.count({ where: { shop, createdAt: { gte: freeWindowStart() } } });
 }

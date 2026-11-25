@@ -1,16 +1,15 @@
 // Review Pass: pure rules (no network, no database) so they can be unit-tested.
 // Shopify Billing records the one-time purchase; we decide what it unlocks and for how long.
 //
-// Free:  every finding of every scan, FREE_SCANS scans per FREE_WINDOW_DAYS, and the first snapshot.
-// Pass:  $29 one time, PASS_DAYS days of unlimited scans and snapshots for every review attempt.
+// Free:  unlimited scans with every finding, plus the snapshot and review kit for the first review request.
+// Pass:  $29 one time, PASS_DAYS days of snapshots and review kits for every review request.
+// Scans are never paywalled (only rate-limited per shop against runaway clicking, see app._index.tsx).
 // Shopify one-time purchases never expire on Shopify's side, so the 60 days are counted from the
 // purchase's createdAt here.
 
 export const PASS_PLAN = "Review Pass"; // must match the key in shopify.server.ts billing config
 export const PASS_PRICE_USD = 29;
 export const PASS_DAYS = 60;
-export const FREE_SCANS = 3;
-export const FREE_WINDOW_DAYS = 30;
 export const FREE_ATTEMPTS = 1;
 /** Money back on request within this many days of buying, no questions asked. Asking ends the pass. */
 export const REFUND_DAYS = 7;
@@ -82,17 +81,6 @@ export function billingTestMode(
   if (partnerDevelopment) return true;
   if (env.NODE_ENV === "production") return false;
   return env.BILLING_TEST?.trim() === "true";
-}
-
-/** Start of the rolling window for counting free scans. */
-export function freeWindowStart(now: Date = new Date()): Date {
-  return new Date(now.getTime() - FREE_WINDOW_DAYS * DAY_MS);
-}
-
-/** Free scans left in the rolling window; null means unlimited (pass active). */
-export function scansLeft(scansInWindow: number, pass: PassStatus): number | null {
-  if (pass.active) return null;
-  return Math.max(0, FREE_SCANS - scansInWindow);
 }
 
 /** Whether the merchant may record review attempt number `attemptNo` (1-based). */
