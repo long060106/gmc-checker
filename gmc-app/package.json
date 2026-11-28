@@ -38,10 +38,10 @@
     "@react-router/fs-routes": "7.18.2",
     "@react-router/node": "7.18.2",
     "@react-router/serve": "7.18.2",
-    "@shopify/app-bridge-react": "^4.2.4",
+    "@shopify/app-bridge-react": "^4.3.1",
     "@shopify/shopify-app-react-router": "^3.0.1",
-    "@shopify/shopify-app-session-storage-prisma": "^11.0.0",
-    "isbot": "^5.1.31",
+    "@shopify/shopify-app-session-storage-prisma": "^11.0.4",
+    "isbot": "^5.2.4",
     "prisma": "^6.19.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
@@ -51,7 +51,7 @@
   },
   "devDependencies": {
     "@shopify/api-codegen-preset": "^2.0.0",
-    "@shopify/cli": "^5.0.1",
+    "@shopify/cli": "^5.1.0",
     "@shopify/polaris-types": "1.0.1",
     "@types/eslint": "^9.6.1",
     "@types/node": "^25.5.2",
@@ -66,10 +66,10 @@
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.0.1",
     "graphql-config": "^5.1.1",
-    "prettier": "^3.6.2",
+    "prettier": "^3.10.1",
     "typescript": "^5.9.3",
     "vite": "^7.3.1",
-    "vitest": "^5.1.0"
+    "vitest": "^5.1.1"
   },
   "workspaces": {
     "packages": [
